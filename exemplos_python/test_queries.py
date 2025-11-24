@@ -17,6 +17,9 @@ def load_env_file():
         logger.error(f"erro ao decodificar variáveis de ambiente em '.env.json'. mensagem: '{e.msg}' linha: {e.lineno} coluna: {e.colno}")
         f.close()
         raise e
+    except FileNotFoundError as e:
+        logger.error(f"O arquivo contendo as variáveis de ambiente não foi encontrado. Consultar o 'README.md', seção 'FAQ', item 1 para mais informações.")
+        raise e
     except Exception  as e:
         logger.error("um erro ocorreu na função load_env_file")
         raise e
@@ -49,6 +52,7 @@ def connect_to_database() -> Any:
 
 
 if __name__ == '__main__':
+    print("\x1b[31mCONSULTE OS LOGS EM CASO DE ERRO\x1b[0m")
     connection = connect_to_database()
     rows = select_everything_from("hospital", connection)
     for row in rows:
