@@ -62,6 +62,23 @@ def select_medic_specialization(medico: str, especializacao: str, medicoespecial
     except Exception as e:
         logger.error(f"erro na função 'select_medic_specialization'")
         raise e
+    
+##procura por um medico especifico
+def search_medic(name: str, medico: str, especializacao: str, medicoespecializacao: str, profissionalsaude: str,  connection: Any) -> list[tuple]:
+    try:
+        cursor = connection.cursor()
+        cursor.execute(f"""SELECT 
+                        ps.NOME,
+                        e.NOME,
+                        e.CPF
+                        FROM {medico} AS m JOIN {profissionalsaude} AS ps ON m.CRM = ps.CRM_MED
+                        JOIN {medicoespecializacao} AS me ON m.CRM = me.CRM_MED
+                        JOIN {especializacao} AS e ON e.ID = me.ID_SPEC""")
+        rows = cursor.fetchall()    
+        return rows
+    except Exception as e:
+        logger.error(f"erro na função 'select_medic_specialization'")
+        raise e
 
 
 def connect_to_database() -> Any:
