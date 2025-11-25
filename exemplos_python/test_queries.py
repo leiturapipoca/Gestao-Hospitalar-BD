@@ -34,6 +34,34 @@ def select_everything_from(table: str, connection: Any) -> list[tuple]:
     except Exception as e:
         logger.error(f"erro na função 'select_everything_from'")
         raise e
+    
+def select_pacient_illness(doenca: str, paciente: str, connection: Any) -> list[tuple]:
+    try:
+        cursor = connection.cursor()
+        cursor.execute(f"""SELECT 
+                       p.NOME,
+                       d.DESCRICAO FROM {doenca} AS d 
+                       JOIN {paciente} AS p ON p.CPF = d.PORTADOR""")
+        rows = cursor.fetchall()    
+        return rows
+    except Exception as e:
+        logger.error(f"erro na função 'select_everything_from'")
+        raise e
+
+def select_medic_specialization(medico: str, especializacao: str, medicoespecializacao: str, profissionalsaude: str,  connection: Any) -> list[tuple]:
+    try:
+        cursor = connection.cursor()
+        cursor.execute(f"""SELECT 
+                        ps.NOME,
+                        e.NOME
+                        FROM {medico} AS m JOIN {profissionalsaude} AS ps ON m.CRM = ps.CRM_MED
+                        JOIN {medicoespecializacao} AS me ON m.CRM = me.CRM_MED
+                        JOIN {especializacao} AS e ON e.ID = me.ID_SPEC""")
+        rows = cursor.fetchall()    
+        return rows
+    except Exception as e:
+        logger.error(f"erro na função 'select_everything_from'")
+        raise e
 
 
 def connect_to_database() -> Any:
@@ -57,4 +85,9 @@ if __name__ == '__main__':
     rows = select_everything_from("hospital", connection)
     for row in rows:
         print(row)
-
+    rows2 = select_pacient_illness("DOENCA","PACIENTE", connection)
+    for row in rows2:
+        print(row)
+    rows3 = select_medic_specialization("MEDICO","ESPECIALIDADE","MEDICO_ESPEC", "PROFISSIONAL_SAUDE", connection)
+    for row in rows3:
+        print(row)
