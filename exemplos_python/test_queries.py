@@ -63,23 +63,34 @@ def select_medic_specialization(medico: str, especializacao: str, medicoespecial
         logger.error(f"erro na função 'select_medic_specialization'")
         raise e
     
-##procura por um medico especifico
+##procura por um medico especifico, setar o db pra ser sempre maiusculo
 def search_medic(name: str, medico: str, especializacao: str, medicoespecializacao: str, profissionalsaude: str,  connection: Any) -> list[tuple]:
     try:
         cursor = connection.cursor()
         cursor.execute(f"""SELECT 
                         ps.NOME,
                         e.NOME,
-                        e.CPF
+                        ps.CPF
                         FROM {medico} AS m JOIN {profissionalsaude} AS ps ON m.CRM = ps.CRM_MED
                         JOIN {medicoespecializacao} AS me ON m.CRM = me.CRM_MED
-                        JOIN {especializacao} AS e ON e.ID = me.ID_SPEC""")
+                        JOIN {especializacao} AS e ON e.ID = me.ID_SPEC WHERE ps.NOME = '{name}' """)
         rows = cursor.fetchall()    
         return rows
     except Exception as e:
-        logger.error(f"erro na função 'select_medic_specialization'")
+        logger.error(f"erro na função 'search_medic'")
         raise e
+    
+# retorna todos os profissionais da saude
+def get_prof_saude( connection: Any):
 
+    try:
+        cursor = connection.cursor()
+        cursor.execute(f"""SELECT * FROM PROFISSIONAL_SAUDE ;""")
+        rows = cursor.fetchall()
+        return rows
+    except Exception as e:
+        logger.error("erro na função ' get_prof_saude'")
+        raise e
 
 def connect_to_database() -> Any:
     env = load_env_file()
@@ -114,24 +125,12 @@ def get_hospital_rooms(cnes: str, connection: Any):
         raise e
 
 
-# retorna todos os profissionais da saude
-def get_prof_saude( connection: Any):
-
-    try:
-        cursor = connection.cursor()
-        cursor.execute(f"""SELECT * FROM PROFISSIONAL_SAUDE ;""")
-        rows = cursor.fetchall()
-        return rows
-    except Exception as e:
-        logger.error("erro na função ' get_prof_saude'")
-        raise e
-
     
 
 if __name__ == '__main__':
     print("\x1b[31mCONSULTE OS LOGS EM CASO DE ERRO\x1b[0m")
     connection = connect_to_database()
-    rows =  get_prof_saude( connection)
+    rows = get_hospital_rooms("0000001", connection)
     for row in rows:
         print(row)
     rows2 = select_pacient_illness("DOENCA","PACIENTE", connection)
