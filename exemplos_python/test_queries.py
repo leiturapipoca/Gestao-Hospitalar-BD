@@ -32,7 +32,7 @@ def select_everything_from(table: str, connection: Any) -> list[tuple]:
         rows = cursor.fetchall()    
         return rows
     except Exception as e:
-        logger.error(f"erro na função 'select_everything_from'")
+        logger.error("erro na função 'select_everything_from'")
         raise e
     
 def select_pacient_illness(doenca: str, paciente: str, connection: Any) -> list[tuple]:
@@ -79,10 +79,30 @@ def connect_to_database() -> Any:
         logger.error(f'erro ao gerar conecção: {e}')
 
 
+# retorna todos as salas de um dado hospital
+def get_hospital_rooms(cnes: str, connection: Any):
+    if len(cnes) != 7:
+        raise ValueError(f"cnes deve conter 7 caracteres. cnes informad ({cnes}) possui {len(cnes)}.")
+
+    try: int(cnes)
+    except: ValueError(f"cnes deve ser exclusivamente numérico. cnes informado, {cnes}, não é.")
+
+    try:
+        cursor = connection.cursor()
+        cursor.execute(f"""SELECT * FROM SALA WHERE hospital = '{cnes}';""")
+        rows = cursor.fetchall()
+        return rows
+    except Exception as e:
+        logger.error("erro na função 'get_hospital_rooms'")
+        raise e
+
+
+    
+
 if __name__ == '__main__':
     print("\x1b[31mCONSULTE OS LOGS EM CASO DE ERRO\x1b[0m")
     connection = connect_to_database()
-    rows = select_everything_from("hospital", connection)
+    rows = get_hospital_rooms("0000001", connection)
     for row in rows:
         print(row)
     rows2 = select_pacient_illness("DOENCA","PACIENTE", connection)
