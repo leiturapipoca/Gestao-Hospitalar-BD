@@ -34,7 +34,7 @@ def select_everything_from(table: str, connection: Any) -> list[tuple]:
     except Exception as e:
         logger.error("erro na função 'select_everything_from'")
         raise e
-    
+##retorna os pacientes e suas doenças
 def select_pacient_illness(doenca: str, paciente: str, connection: Any) -> list[tuple]:
     try:
         cursor = connection.cursor()
@@ -45,9 +45,9 @@ def select_pacient_illness(doenca: str, paciente: str, connection: Any) -> list[
         rows = cursor.fetchall()    
         return rows
     except Exception as e:
-        logger.error(f"erro na função 'select_everything_from'")
+        logger.error(f"erro na função 'select_pacient_illness'")
         raise e
-
+## retorna os medicos e suas att
 def select_medic_specialization(medico: str, especializacao: str, medicoespecializacao: str, profissionalsaude: str,  connection: Any) -> list[tuple]:
     try:
         cursor = connection.cursor()
@@ -60,7 +60,7 @@ def select_medic_specialization(medico: str, especializacao: str, medicoespecial
         rows = cursor.fetchall()    
         return rows
     except Exception as e:
-        logger.error(f"erro na função 'select_everything_from'")
+        logger.error(f"erro na função 'select_medic_specialization'")
         raise e
 
 
