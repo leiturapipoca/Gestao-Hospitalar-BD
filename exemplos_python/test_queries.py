@@ -92,6 +92,22 @@ def get_prof_saude( connection: Any):
         logger.error("erro na função ' get_prof_saude'")
         raise e
 
+def get_workers(hospital: str, funcionario: str, func_hosp: str, connection: Any) -> list[tuple]:
+    try:
+        cursor = connection.cursor()
+        cursor.execute(f"""SELECT 
+                       f.NOME,
+                       f.FUNC,
+                       h.NOME
+                       FROM {hospital} AS h 
+                       JOIN {func_hosp} AS fh ON fh.CNES_HOSP = h.CNES
+                       JOIN {funcionario} AS f ON f.MATRICULA = fh.MATR_FUNC""")
+        rows = cursor.fetchall()    
+        return rows
+    except Exception as e:
+        logger.error(f"erro na função 'select_pacient_illness'")
+        raise e
+ 
 def connect_to_database() -> Any:
     env = load_env_file()
     try:
@@ -138,4 +154,7 @@ if __name__ == '__main__':
         print(row)
     rows3 = select_medic_specialization("MEDICO","ESPECIALIDADE","MEDICO_ESPEC", "PROFISSIONAL_SAUDE", connection)
     for row in rows3:
+        print(row)
+    rows4 = get_workers("HOSPITAL","FUNCINARIO","FUNC_HOSP", connection)
+    for row in rows4:
         print(row)
