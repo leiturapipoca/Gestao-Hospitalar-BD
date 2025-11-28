@@ -34,6 +34,20 @@ def select_everything_from(table: str, connection: Any) -> list[tuple]:
     except Exception as e:
         logger.error("erro na função 'select_everything_from'")
         raise e
+    
+
+def select_everything_from_users(table: str, connection: Any) -> list[tuple]:
+    try:
+        cursor = connection.cursor()
+        cursor.execute(f"SELECT * FROM {table}")
+        rows = cursor.fetchall()    
+        return rows
+    except Exception as e:
+        logger.error("erro na função 'select_everything_from'")
+        raise e
+    
+
+
 ##retorna os pacientes e suas doenças
 def select_pacient_illness(doenca: str, paciente: str, connection: Any) -> list[tuple]:
     try:
@@ -140,9 +154,6 @@ def get_hospital_rooms(cnes: str, connection: Any):
         logger.error("erro na função 'get_hospital_rooms'")
         raise e
 
-
-    
-
 if __name__ == '__main__':
     print("\x1b[31mCONSULTE OS LOGS EM CASO DE ERRO\x1b[0m")
     connection = connect_to_database()
@@ -157,4 +168,7 @@ if __name__ == '__main__':
         print(row)
     rows4 = get_workers("HOSPITAL","FUNCINARIO","FUNC_HOSP", connection)
     for row in rows4:
+        print(row)
+    rows5 = select_everything_from_users("USUARIO", connection)
+    for row in rows5:
         print(row)
