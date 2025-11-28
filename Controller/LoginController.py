@@ -1,7 +1,9 @@
 # Controller/LoginController.py
 from tkinter import messagebox
 from View.TelaLogin import TelaLogin
-from Model.UsuarioDAO import UsuarioDAO
+from Model.FuncionarioDAO import FuncionarioDAO
+from Model.PacienteDAO import PacienteDAO
+from Model.ProfissionalDAO import ProfissionalDAO
 
 class LoginController:
     def __init__(self, root):
@@ -10,22 +12,50 @@ class LoginController:
         self.view.set_action_botao(self.fazer_login)
         
       
-        self.usuario_dao = UsuarioDAO()
+        self.funcionario_dao = FuncionarioDAO()
+        self.paciente_dao = PacienteDAO()
+        self.profissional_dao = ProfissionalDAO()
+
 
     def fazer_login(self):
-        print("O BOTÃO FOI CLICADO! CHEGOU NO CONTROLLER.")
+        
         login_input = self.view.get_login() 
         senha_input = self.view.get_senha() 
-
+        perfil_input = self.view.get_tipo_usuario()
         
-        if not login_input.isdigit():
-            messagebox.showwarning("Aviso", "ID ou Senha inválidos.")
-            return
+        if perfil_input == "FUNCIONARIO":
+            autenticado = self.funcionario_dao.autenticar(int(login_input), senha_input)
+
+            if autenticado:
+                messagebox.showinfo("Sucesso", "Funcionário logado")
+                #tela de menuFuncionário
+
+            else:
+                messagebox.showerror("Erro", "ID ou Senha inválidos.")
 
 
-        autenticado = self.usuario_dao.autenticar(int(login_input), senha_input)
-        if autenticado:
-            messagebox.showinfo("Sucesso", "Login realizado!")
-            #tela de menu
+
+        elif perfil_input == "PACIENTE":
+            autenticado = self.paciente_dao.autenticar((login_input), senha_input)
+            if autenticado:
+                messagebox.showinfo("Sucesso", "Paciente logado")
+                #tela de menuPaciente
+
+            else:
+                messagebox.showerror("Erro", "ID ou Senha inválidos.")
+
+
         else:
-            messagebox.showerror("Erro", "ID ou Senha inválidos.")
+            
+            autenticado = self.profissional_dao.autenticar((login_input), senha_input)
+            if autenticado:
+                messagebox.showinfo("Sucesso", "Profissional logado")
+                #tela de menuProfissional
+            else:
+                messagebox.showerror("Erro", "ID ou Senha inválidos.")
+
+            
+
+
+
+     
