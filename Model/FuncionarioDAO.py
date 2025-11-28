@@ -5,13 +5,14 @@ from exemplos_python.test_queries import connect_to_database
 class FuncionarioDAO:
     def __init__(self):
         self.connection = connect_to_database()
-
+    
+    # Pega o nome baseado no login e na senha
     def autenticar(self, matr_func, senha_digitada):
         
         try:
             cursor = self.connection.cursor()
             
-            sql = "SELECT * FROM FUNCINARIO WHERE MATRICULA = %s AND SENHA = %s"
+            sql = "SELECT NOME FROM FUNCINARIO WHERE MATRICULA = %s AND SENHA = %s"
             
             cursor.execute(sql, (matr_func, senha_digitada))
             resultado = cursor.fetchone() # Pega a primeira linha que achar
@@ -19,7 +20,7 @@ class FuncionarioDAO:
             
 
             if resultado:
-                return True 
+                return resultado[0] 
             else:
                 return False 
                 

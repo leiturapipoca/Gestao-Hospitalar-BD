@@ -11,7 +11,7 @@ class PacienteDAO:
         try:
             cursor = self.connection.cursor()
             
-            sql = "SELECT * FROM PACIENTE WHERE CPF = %s AND SENHA = %s"
+            sql = "SELECT NOME FROM PACIENTE WHERE CPF = %s AND SENHA = %s"
             
             cursor.execute(sql, (cpf_digitado, senha_digitada))
             resultado = cursor.fetchone() # Pega a primeira linha que achar

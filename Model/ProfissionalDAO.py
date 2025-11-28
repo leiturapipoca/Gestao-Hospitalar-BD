@@ -11,7 +11,7 @@ class ProfissionalDAO:
         try:
             cursor = self.connection.cursor()
             
-            sql = "SELECT * FROM PROFISSIONAL_SAUDE WHERE CPF = %s AND SENHA = %s"
+            sql = "SELECT NOME FROM PROFISSIONAL_SAUDE WHERE CPF = %s AND SENHA = %s"
             
             cursor.execute(sql, (cpf_digitado, senha_digitada))
             resultado = cursor.fetchone() # Pega a primeira linha que achar
@@ -19,7 +19,7 @@ class ProfissionalDAO:
             
 
             if resultado:
-                return True 
+                return resultado[0]
             else:
                 return False 
                 

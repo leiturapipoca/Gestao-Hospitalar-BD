@@ -4,6 +4,8 @@ from View.TelaLogin import TelaLogin
 from Model.FuncionarioDAO import FuncionarioDAO
 from Model.PacienteDAO import PacienteDAO
 from Model.ProfissionalDAO import ProfissionalDAO
+from Controller.InternosController import InternosController
+
 
 class LoginController:
     def __init__(self, root):
@@ -28,6 +30,8 @@ class LoginController:
 
             if autenticado:
                 messagebox.showinfo("Sucesso", "Funcionário logado")
+                self.view.frm.destroy()
+                InternosController(self.view.janela, autenticado)
                 #tela de menuFuncionário
 
             else:
@@ -50,6 +54,8 @@ class LoginController:
             autenticado = self.profissional_dao.autenticar((login_input), senha_input)
             if autenticado:
                 messagebox.showinfo("Sucesso", "Profissional logado")
+                self.view.frm.destroy()
+                InternosController(self.view.janela, autenticado)
                 #tela de menuProfissional
             else:
                 messagebox.showerror("Erro", "ID ou Senha inválidos.")
