@@ -5,7 +5,7 @@ from Model.FuncionarioDAO import FuncionarioDAO
 from Model.PacienteDAO import PacienteDAO
 from Model.ProfissionalDAO import ProfissionalDAO
 from Controller.InternosController import InternosController
-
+from Controller.ExternosController import ExternosController
 
 class LoginController:
     def __init__(self, root):
@@ -43,6 +43,9 @@ class LoginController:
             autenticado = self.paciente_dao.autenticar((login_input), senha_input)
             if autenticado:
                 messagebox.showinfo("Sucesso", "Paciente logado")
+                self.view.frm.destroy()
+                ExternosController(self.view.janela, autenticado)
+
                 #tela de menuPaciente
 
             else:

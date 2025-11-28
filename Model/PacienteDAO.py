@@ -19,7 +19,7 @@ class PacienteDAO:
             
 
             if resultado:
-                return True 
+                return resultado[0] 
             else:
                 return False 
                 
