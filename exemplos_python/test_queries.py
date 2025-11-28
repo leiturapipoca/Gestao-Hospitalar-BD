@@ -6,6 +6,13 @@ from typing import Any
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename='program.log', level=logging.INFO)
 
+def validate_cnes(cnes: str) -> None:
+    if len(cnes) != 7:
+        raise ValueError(f"cnes deve conter 7 caracteres. cnes informad ({cnes}) possui {len(cnes)}.")
+
+    try: int(cnes)
+    except: ValueError(f"cnes deve ser exclusivamente numérico. cnes informado, {cnes}, não é.")
+
 
 def load_env_file():
     try:
@@ -139,11 +146,7 @@ def connect_to_database() -> Any:
 
 # retorna todos as salas de um dado hospital
 def get_hospital_rooms(cnes: str, connection: Any):
-    if len(cnes) != 7:
-        raise ValueError(f"cnes deve conter 7 caracteres. cnes informad ({cnes}) possui {len(cnes)}.")
-
-    try: int(cnes)
-    except: ValueError(f"cnes deve ser exclusivamente numérico. cnes informado, {cnes}, não é.")
+    validate_cnes(cnes)
 
     try:
         cursor = connection.cursor()
@@ -153,6 +156,22 @@ def get_hospital_rooms(cnes: str, connection: Any):
     except Exception as e:
         logger.error("erro na função 'get_hospital_rooms'")
         raise e
+
+# retorna o número de medicos em um dado hospital
+def num_of_docs_in_hosp(cnes: str, connection: Any) -> int:
+    validate_cnes(cnes)
+    cursor = connection.cursor()
+    cursor.execute(f"""
+                   SELECT COUNT(*) FROM prof_saude_hosp
+                   JOIN profissional_saude
+                   ON profissional_saude.cpf = prof_saude_hosp.cpf_prof
+                   WHERE
+                       prof_saude_hosp.cnes_hosp = '{cnes}'
+                       AND 
+                       profissional_saude.tipo = 'M';
+                   """)
+    rows = cursor.fetchall()
+    return rows[0][0]
 
 if __name__ == '__main__':
     print("\x1b[31mCONSULTE OS LOGS EM CASO DE ERRO\x1b[0m")
@@ -172,3 +191,5 @@ if __name__ == '__main__':
     rows5 = select_everything_from_users("USUARIO", connection)
     for row in rows5:
         print(row)
+    n1 = num_of_docs_in_hosp("0000001", connection)
+    print(n1)
