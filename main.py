@@ -4,7 +4,7 @@ from Controller.LoginController import LoginController
 from Model import HospitalDAO
 from SQL import databaseUtils
 
-test_hosp_model = True
+test_hosp_model = False
 
 if __name__ == "__main__":
     if test_hosp_model: HospitalDAO.run_hosp_model_tests()
