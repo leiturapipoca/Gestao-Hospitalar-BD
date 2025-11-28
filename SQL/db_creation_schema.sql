@@ -48,7 +48,7 @@ CREATE TABLE SALA (
                       FOREIGN KEY (HOSPITAL) REFERENCES HOSPITAL
 );
 
-CREATE TABLE FUNCINARIO (
+CREATE TABLE FUNCIONARIO (
                             MATRICULA SERIAL PRIMARY KEY,
                             NOME TEXT NOT NULL,
                             FUNC SERIAL NOT NULL,
@@ -103,7 +103,7 @@ CREATE TABLE PROCEDIMENTO (
 -- TABLAS RELACIONAIS
 CREATE TABLE FUNC_HOSP (
                            CNES_HOSP CHAR(7) REFERENCES HOSPITAL,
-                           MATR_FUNC SERIAL REFERENCES FUNCINARIO,
+                           MATR_FUNC SERIAL REFERENCES FUNCIONARIO,
                            PRIMARY KEY (CNES_HOSP, MATR_FUNC)
 );
 
@@ -185,7 +185,7 @@ INSERT INTO SALA (NUMERO, HOSPITAL) VALUES
 -- ============================
 -- FUNCIONÁRIOS
 -- ============================
-INSERT INTO FUNCINARIO (NOME, FUNC) VALUES
+INSERT INTO FUNCIONARIO (NOME, FUNC) VALUES
                                          ('Paulo Recepcionista', 1),
                                          ('José Segurança', 2),
                                          ('Clara Auxiliar', 3);

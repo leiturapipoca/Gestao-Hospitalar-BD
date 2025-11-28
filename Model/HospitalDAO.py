@@ -50,12 +50,28 @@ def num_of_enf_in_hosp(cnes: str, connection: Any) -> int:
     return rows[0][0]
 
 
+def num_of_fun_in_hosp(cnes: str, connection: Any) -> int:
+    """conta o número de empregados (excluindo médicos e enfermeiros) vinculados a um dado hospital"""
+
+    validate_cnes(cnes)
+    cursor = connection.cursor()
+    cursor.execute(f"""
+                   SELECT COUNT(*) FROM func_hosp
+                   JOIN funcionario
+                   ON funcionario.matricula = func_hosp.matr_func
+                   WHERE func_hosp.cnes_hosp = '{cnes}';
+                   """)
+    rows = cursor.fetchall()
+    return rows[0][0]
+
 def run_hosp_model_tests():
+    """roda testes verificando o correto funcionamento das queries presentes no HospitalDAO"""
     connection = databaseUtils.connect_to_database() 
     cnes1 = "0000001"
     cnes2 = "0000002"
-
-    test_logger.info(f"numero de médicos no hospital {cnes1}: {num_of_docs_in_hosp(cnes1, connection)}")
-    test_logger.info(f"numero de enfermeiros no hospital {cnes1}: {num_of_enf_in_hosp(cnes1, connection)}")
-    test_logger.info(f"numero de médicos no hospital {cnes2}: {num_of_docs_in_hosp(cnes2, connection)}")
-    test_logger.info(f"numero de enfermeiros no hospital {cnes2}: {num_of_enf_in_hosp(cnes2, connection)}")
+    test_logger.info(f"número de médicos no hospital {cnes1}: {num_of_docs_in_hosp(cnes1, connection)}")
+    test_logger.info(f"número de enfermeiros no hospital {cnes1}: {num_of_enf_in_hosp(cnes1, connection)}")
+    test_logger.info(f"número de funcionários no hospital {cnes1}: {num_of_fun_in_hosp(cnes1, connection)}")
+    test_logger.info(f"número de médicos no hospital {cnes2}: {num_of_docs_in_hosp(cnes2, connection)}")
+    test_logger.info(f"número de enfermeiros no hospital {cnes2}: {num_of_enf_in_hosp(cnes2, connection)}")
+    test_logger.info(f"numero de funcionários no hospital {cnes2}: {num_of_fun_in_hosp(cnes2, connection)}")
