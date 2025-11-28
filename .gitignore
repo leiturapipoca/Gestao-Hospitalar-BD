@@ -1,4 +1,5 @@
 .env.json
+tests.log
 program.log
 __pycache__/
 *.pyc
