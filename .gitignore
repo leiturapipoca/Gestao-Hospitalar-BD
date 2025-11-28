@@ -1,2 +1,6 @@
 .env.json
 program.log
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
