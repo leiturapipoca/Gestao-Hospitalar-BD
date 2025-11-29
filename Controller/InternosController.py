@@ -1,5 +1,6 @@
 from View.TelaInternos import TelaInternos
 from Controller.EntradasController import EntradasController
+from Controller.GerenciarFuncsController import GerenciarFuncsController
 
 # from Controller.FuncionariosController import FuncionariosController
 # from Controller.PacientesController import PacientesController
@@ -31,7 +32,7 @@ class InternosController:
 
     def abrir_funcionarios(self):
         self.view.frm.destroy()
-        # FuncionariosController(self.view.janela)
+        GerenciarFuncsController(self.view.janela)
 
     def abrir_pacientes(self):
         self.view.frm.destroy()
