@@ -20,7 +20,10 @@ class FuncionarioDAO:
             
 
             if resultado:
-                return resultado[0] 
+                return {
+            "matricula": matr_func,  # O número inteiro (1, 2, 3...)
+            "nome": resultado[0]     # O nome (Carlos Func)
+        }
             else:
                 return False 
                 

@@ -64,6 +64,45 @@ def num_of_fun_in_hosp(cnes: str, connection: Any) -> int:
     rows = cursor.fetchall()
     return rows[0][0]
 
+def get_cnes_by_matricula(matricula: int, connection: Any) -> str:
+    """
+    busca qual o CNES do hospital onde o funcionário trabalha.
+    retorna o CNES (string) ou None se não achar.
+    """
+    try:
+        cursor = connection.cursor()
+        
+        sql = "SELECT CNES_HOSP FROM FUNC_HOSP WHERE MATR_FUNC = %s"
+        
+        cursor.execute(sql, (matricula,))
+        row = cursor.fetchone()
+        
+        if row:
+            return row[0] # Retorna o CNES (Ex: "0000001")
+        else:
+            return None
+        
+    except Exception as e:
+        print(f"Erro ao buscar hospital do funcionário: {e}")
+        return None
+    
+def get_name_by_cnes(cnes: str, connection: Any) -> str:
+    
+    try:
+        cursor = connection.cursor()
+        sql = "SELECT NOME FROM HOSPITAL WHERE CNES = %s"
+        cursor.execute(sql, (cnes,))
+        row = cursor.fetchone()
+        
+        if row:
+            return row[0] # Retorna o Nome (Ex: "Hospital Central")
+        else:
+            return None
+    except Exception as e:
+        print(f"Erro ao buscar nome do hospital: {e}")
+        return None
+    
+
 def run_hosp_model_tests():
     """roda testes verificando o correto funcionamento das queries presentes no HospitalDAO"""
     connection = databaseUtils.connect_to_database() 

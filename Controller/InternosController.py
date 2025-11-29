@@ -1,11 +1,26 @@
 from View.TelaInternos import TelaInternos
+from Controller.EntradasController import EntradasController
+
+# from Controller.FuncionariosController import FuncionariosController
+# from Controller.PacientesController import PacientesController
+# from Controller.ProfissionaisController import ProfissionaisController
+# from Controller.HospitaisController import HospitaisController
 
 class InternosController:
-    def __init__(self, root, usuario):
-        # Instancia a View passando a janela principal e o nome recuperado do banco
+    def __init__(self, root, dados_usuario):
+        # 1. BLINDAGEM: Garante que 'dados_usuario' é o dicionário completo
+        if isinstance(dados_usuario, dict):
+            self.dados_usuario_completo = dados_usuario
+            nome_exibir = dados_usuario['nome']
+        else:
+            # Recuperação de falha
+            self.dados_usuario_completo = {"matricula": 0, "nome": str(dados_usuario)}
+            nome_exibir = str(dados_usuario)
 
-        self.view = TelaInternos(root, usuario)
-      
+        # 2. Instancia a tela
+        self.view = TelaInternos(root, nome_exibir)
+        
+        # 3. Configura a navegação
         self.view.configurar_navegacao(
             self.abrir_funcionarios,
             self.abrir_pacientes,
@@ -28,9 +43,9 @@ class InternosController:
 
     def abrir_entradas(self):
         self.view.frm.destroy()
-        # EntradasController(self.view.janela)
+        # Passa o dicionário completo para frente
+        EntradasController(self.view.janela, self.dados_usuario_completo)
     
     def abrir_hospitais(self):
         self.view.frm.destroy()
         # HospitaisController(self.view.janela)
-
