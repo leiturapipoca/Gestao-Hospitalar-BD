@@ -7,7 +7,7 @@ from Model import HospitalDAO
 from SQL import databaseUtils
 
 test_hosp_model = False
-specific_view_test = 'acesso_interno'
+specific_view_test = 'login'
 
 if __name__ == "__main__":
     if test_hosp_model: HospitalDAO.run_hosp_model_tests()

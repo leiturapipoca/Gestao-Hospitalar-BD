@@ -1,5 +1,3 @@
-DROP TABLE IF EXISTS SLA;
-
 
 DROP SCHEMA public CASCADE;
 CREATE SCHEMA public;
@@ -9,6 +7,7 @@ CREATE TABLE PACIENTE (
                           DT_NASC DATE,
                           SEXO CHAR(1) NOT NULL,
                           NOME TEXT NOT NULL,
+                          SENHA TEXT,
                           TIPO_SANG CHAR(2)
 );
 
@@ -38,6 +37,7 @@ CREATE TABLE HOSPITAL (
                           CNES CHAR(7) PRIMARY KEY,
                           NOME TEXT NOT NULL,
                           ADM SERIAL NOT NULL,
+                          PROCEDIMENTOS SERIAL NOT NULL,
                           FOREIGN KEY (ADM) REFERENCES ADMINISTRADOR
 );
 
@@ -48,19 +48,22 @@ CREATE TABLE SALA (
                       FOREIGN KEY (HOSPITAL) REFERENCES HOSPITAL
 );
 
-CREATE TABLE FUNCIONARIO (
+CREATE TABLE FUNCINARIO (
                             MATRICULA SERIAL PRIMARY KEY,
                             NOME TEXT NOT NULL,
                             FUNC SERIAL NOT NULL,
+                            SENHA TEXT NOT NULL,
                             FOREIGN KEY (FUNC) REFERENCES FUNCAO
 );
 
 CREATE TABLE MEDICO (
                         CRM CHAR(9) PRIMARY KEY
+
 );
 
 CREATE TABLE ENFERMEIRO(
                            CODIGO SERIAL PRIMARY KEY
+
 );
 
 CREATE TABLE ESPECIALIDADE(
@@ -72,6 +75,7 @@ CREATE TABLE PROFISSIONAL_SAUDE (
                                     CPF CHAR(11) PRIMARY KEY,
                                     NOME TEXT NOT NULL,
                                     TIPO CHAR(1), -- M ou E
+                                    SENHA TEXT NOT NULL,
                                     CRM_MED CHAR(9) REFERENCES MEDICO ON DELETE SET NULL,
                                     COD_ENF INTEGER REFERENCES ENFERMEIRO ON DELETE SET NULL
 );
@@ -103,7 +107,7 @@ CREATE TABLE PROCEDIMENTO (
 -- TABLAS RELACIONAIS
 CREATE TABLE FUNC_HOSP (
                            CNES_HOSP CHAR(7) REFERENCES HOSPITAL,
-                           MATR_FUNC SERIAL REFERENCES FUNCIONARIO,
+                           MATR_FUNC SERIAL REFERENCES FUNCINARIO,
                            PRIMARY KEY (CNES_HOSP, MATR_FUNC)
 );
 
@@ -118,159 +122,120 @@ CREATE TABLE MEDICO_ESPEC (
                               ID_SPEC SERIAL REFERENCES ESPECIALIDADE,
                               PRIMARY KEY (CRM_MED, ID_SPEC)
 );
-CREATE TABLE USUARIO (
-        ID INT PRIMARY KEY,
-        SENHA CHAR(9)
-);
-
-
-INSERT INTO USUARIO VALUES (1, '123456789');
-INSERT INTO MEDICO(CRM) VALUES ('1234567DF');
-INSERT INTO ENFERMEIRO(CODIGO) VALUES (1);
-INSERT INTO PROFISSIONAL_SAUDE(CPF, NOME, TIPO, CRM_MED, COD_ENF) VALUES ('03191571647', 'CARLOS', 'M', '1234567DF', NULL);
--- ============================
--- PACIENTES
--- ============================
-INSERT INTO PACIENTE (CPF, DT_NASC, SEXO, NOME, TIPO_SANG) VALUES
-                                                               ('00000000001', '1990-01-10', 'M', 'João Silva', 'A+'),
-                                                               ('00000000002', '1985-05-20', 'F', 'Maria Souza', 'O-'),
-                                                               ('00000000003', '2000-12-03', 'M', 'Pedro Almeida', 'B+'),
-                                                               ('00000000004', '1975-03-15', 'F', 'Ana Costa', 'AB');
 
 -- ============================
--- TELEFONES
+-- 1) TABELAS BÁSICAS
 -- ============================
-INSERT INTO TELEFONE VALUES
-                         ('1111-1111', '00000000001'),
-                         ('2222-2222', '00000000002'),
-                         ('3333-3333', '00000000003'),
-                         ('4444-4444', '00000000004');
+
+INSERT INTO PACIENTE (CPF, DT_NASC, SEXO, NOME, SENHA, TIPO_SANG)
+VALUES
+    ('00000000001', '2000-01-01', 'M', 'Paciente A', '123', 'A+'),
+    ('00000000002', '1999-05-10', 'F', 'Paciente B', '123', 'O-');
+
+INSERT INTO TELEFONE (NUMERO, PROPRIETARIO)
+VALUES
+    ('1111-1111', '00000000001'),
+    ('2222-2222', '00000000002');
+
+INSERT INTO DOENCA (DESCRICAO, PORTADOR)
+VALUES
+    ('Gripe', '00000000001'),
+    ('Asma', '00000000002');
+
+INSERT INTO FUNCAO (NOME)
+VALUES ('Recepcionista'), ('Segurança');
+
+INSERT INTO ADMINISTRADOR (NOME)
+VALUES ('Admin 1'), ('Admin 2');
 
 -- ============================
--- DOENÇAS
+-- 2) HOSPITAL + SALAS
 -- ============================
-INSERT INTO DOENCA VALUES
-                       ('Asma', '00000000001'),
-                       ('Diabetes', '00000000002'),
-                       ('Hipertensão', '00000000004');
+
+INSERT INTO HOSPITAL (CNES, NOME, ADM)
+VALUES
+    ('0000001', 'Hospital Central', 1);
+
+INSERT INTO SALA (NUMERO, HOSPITAL)
+VALUES
+    (101, '0000001'),
+    (102, '0000001');
 
 -- ============================
--- FUNÇÕES DE FUNCIONÁRIOS
+-- 3) FUNCIONARIOS
 -- ============================
-INSERT INTO FUNCAO (NOME) VALUES
-                              ('Recepcionista'),
-                              ('Segurança'),
-                              ('Auxiliar administrativo');
+
+INSERT INTO FUNCINARIO (NOME, FUNC, SENHA)
+VALUES
+    ('Carlos Func', 1, 'abc'),
+    ('João Func', 2, 'abc');
 
 -- ============================
--- ADMINISTRADORES
+-- 4) MÉDICO, ENFERMEIRO, ESPECIALIDADE
 -- ============================
-INSERT INTO ADMINISTRADOR (NOME) VALUES
-                                     ('Carlos Admin'),
-                                     ('Fernanda Admin');
+
+INSERT INTO MEDICO (CRM)
+VALUES ('CRM000001');
+
+INSERT INTO ENFERMEIRO (CODIGO)
+VALUES (DEFAULT);  -- gera automaticamente (1)
+
+INSERT INTO ESPECIALIDADE (NOME)
+VALUES ('Cardiologia'), ('Pediatria');
 
 -- ============================
--- HOSPITAIS
+-- 5) PROFISSIONAL DE SAÚDE
 -- ============================
-INSERT INTO HOSPITAL (CNES, NOME, ADM) VALUES
-                                           ('0000001', 'Hospital Central', 1),
-                                           ('0000002', 'Hospital Municipal', 2);
+
+INSERT INTO PROFISSIONAL_SAUDE (CPF, NOME, TIPO, SENHA, CRM_MED, COD_ENF)
+VALUES
+    ('00000000011', 'Dr. Fulano', 'M', 'med123', 'CRM000001', NULL),
+    ('00000000012', 'Enf. Beltrano', 'E', 'enf123', NULL, 1);
+
+INSERT INTO PROF_SAUDE_HOSP (CPF_PROF, CNES_HOSP)
+VALUES
+    ('00000000011', '0000001'),
+    ('00000000012', '0000001');
 
 -- ============================
--- SALAS
+-- 6) TIPOS DE PROCEDIMENTOS + ENTRADA
 -- ============================
-INSERT INTO SALA (NUMERO, HOSPITAL) VALUES
-                                        (101, '0000001'),
-                                        (102, '0000001'),
-                                        (201, '0000002');
+
+INSERT INTO TIPO_PROC (NOME)
+VALUES
+    ('Raio-X'),
+    ('Curativo');
+
+INSERT INTO ENTRADA (DATA, CPF_PAC, CNES_HOSP)
+VALUES
+    ('2024-01-01 08:00', '00000000001', '0000001'),
+    ('2024-01-02 09:00', '00000000002', '0000001');
 
 -- ============================
--- FUNCIONÁRIOS
+-- 7) PROCEDIMENTO
 -- ============================
-INSERT INTO FUNCIONARIO (NOME, FUNC) VALUES
-                                         ('Paulo Recepcionista', 1),
-                                         ('José Segurança', 2),
-                                         ('Clara Auxiliar', 3);
+
+INSERT INTO PROCEDIMENTO (ID_TIPO, COD_ENTR)
+VALUES
+    (1, 1),
+    (2, 2);
 
 -- ============================
--- MEDICOS / ENFERMEIROS
+-- 8) TABELAS RELACIONAIS
 -- ============================
-INSERT INTO MEDICO (CRM) VALUES ('1111111AA');
-INSERT INTO MEDICO (CRM) VALUES ('2222222BB');
 
-INSERT INTO ENFERMEIRO (CODIGO) VALUES (10), (20);
+INSERT INTO FUNC_HOSP (CNES_HOSP, MATR_FUNC)
+VALUES
+    ('0000001', 1),
+    ('0000001', 2);
 
--- ============================
--- PROFISSIONAIS DE SAÚDE
--- ============================
-INSERT INTO PROFISSIONAL_SAUDE VALUES
-                                   ('00000000010', 'Dr. Alberto', 'M', '1111111AA', NULL),
-                                   ('00000000011', 'Dr. Helena', 'M', '2222222BB', NULL),
-                                   ('00000000012', 'Enf. Marcos', 'E', NULL, 10),
-                                   ('00000000013', 'Enf. Julia', 'E', NULL, 20);
+INSERT INTO PROF_PROC (COD_PROC, COD_PROF)
+VALUES
+    (1, '00000000011'),
+    (2, '00000000012');
 
--- ============================
--- PROFISSIONAIS EM HOSPITAIS
--- ============================
-INSERT INTO PROF_SAUDE_HOSP VALUES
-                                ('00000000010', '0000001'),
-                                ('00000000011', '0000001'),
-                                ('00000000012', '0000002'),
-                                ('00000000013', '0000002');
+INSERT INTO MEDICO_ESPEC (CRM_MED, ID_SPEC)
+VALUES
+    ('CRM000001', 1),
+    ('CRM000001', 2);
 
--- ============================
--- ESPECIALIDADES
--- ============================
-INSERT INTO ESPECIALIDADE (NOME) VALUES
-                                     ('Cardiologia'),
-                                     ('Ortopedia'),
-                                     ('Pediatria');
-
--- Médicos com especialidades
-INSERT INTO MEDICO_ESPEC VALUES
-                             ('1111111AA', 1),
-                             ('1111111AA', 3),
-                             ('2222222BB', 2);
-
--- ============================
--- TIPOS DE PROCEDIMENTOS
--- ============================
-INSERT INTO TIPO_PROC (NOME) VALUES
-                                 ('Raio-X'),
-                                 ('Cirurgia'),
-                                 ('Curativo');
-
--- ============================
--- ENTRADAS
--- ============================
-INSERT INTO ENTRADA (DATA, CPF_PAC, CNES_HOSP) VALUES
-                                                   ('2025-01-10 08:30', '00000000001', '0000001'),
-                                                   ('2025-01-10 09:00', '00000000002', '0000002'),
-                                                   ('2025-01-10 10:15', '00000000003', '0000001');
-
--- ============================
--- PROCEDIMENTOS
--- ============================
-INSERT INTO PROCEDIMENTO (ID_TIPO, COD_ENTR) VALUES
-                                                 (1, 1), -- Raio-X para paciente 1
-                                                 (3, 1), -- Curativo paciente 1
-                                                 (2, 2), -- Cirurgia paciente 2
-                                                 (1, 3); -- Raio-X paciente 3
-
--- ============================
--- PROFISSIONAIS EM PROCEDIMENTOS
--- ============================
-INSERT INTO PROF_PROC VALUES
-                          (1, '00000000010'),
-                          (1, '00000000012'),
-                          (2, '00000000011'),
-                          (3, '00000000012'),
-                          (4, '00000000013');
-
--- ============================
--- FUNCIONÁRIOS EM HOSPITAIS
--- ============================
-INSERT INTO FUNC_HOSP VALUES
-                          ('0000001', 1),
-                          ('0000001', 2),
-                          ('0000002', 3);
