@@ -21,11 +21,15 @@ class TelaEntradas:
         self.campo_cnes = ttk.Entry(self.frm, width=30)
         self.campo_cnes.grid(column=1, row=2, sticky=EW)
 
+        ttk.Label(self.frm, text="Descrição:").grid(column=0, row=3)
+        self.description: ttk.Entry = ttk.Entry(self.frm, width=30)
+        self.description.grid(column=1, row=3)
+        
         # --- Botões ---
         self.btn_salvar = ttk.Button(self.frm, text="CONFIRMAR ENTRADA")
         self.btn_salvar.grid(column=0, row=4, columnspan=2, pady=20, sticky=EW)
         
-        self.btn_voltar = ttk.Button(self.frm, text="Cancelar / Voltar")
+        self.btn_voltar = ttk.Button(self.frm, text="Voltar")
         self.btn_voltar.grid(column=0, row=5, columnspan=2, sticky=EW)
 
    
@@ -41,6 +45,9 @@ class TelaEntradas:
 
     def get_cnes(self):
         return self.campo_cnes.get()
+
+    def get_description(self):
+        return self.description.get()
     
     #Pega cnes automatico
     def preencher_cnes(self, valor_cnes):

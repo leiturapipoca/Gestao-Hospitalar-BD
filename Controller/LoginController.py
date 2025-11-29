@@ -51,18 +51,6 @@ class LoginController:
             else:
                 messagebox.showerror("Erro", "ID ou Senha inválidos.")
 
-
-        else:
-            
-            autenticado = self.profissional_dao.autenticar((login_input), senha_input)
-            if autenticado:
-                messagebox.showinfo("Sucesso", "Profissional logado")
-                self.view.frm.destroy()
-                InternosController(self.view.janela, autenticado)
-                #tela de menuProfissional
-            else:
-                messagebox.showerror("Erro", "ID ou Senha inválidos.")
-
             
 
 

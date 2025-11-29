@@ -45,6 +45,7 @@ CREATE TABLE SALA (
                       ID SERIAL PRIMARY KEY,
                       NUMERO SERIAL,
                       HOSPITAL CHAR(7),
+                      LIVRE BOOLEAN,
                       FOREIGN KEY (HOSPITAL) REFERENCES HOSPITAL
 );
 
@@ -75,7 +76,6 @@ CREATE TABLE PROFISSIONAL_SAUDE (
                                     CPF CHAR(11) PRIMARY KEY,
                                     NOME TEXT NOT NULL,
                                     TIPO CHAR(1), -- M ou E
-                                    SENHA TEXT NOT NULL,
                                     CRM_MED CHAR(9) REFERENCES MEDICO ON DELETE SET NULL,
                                     COD_ENF INTEGER REFERENCES ENFERMEIRO ON DELETE SET NULL
 );
@@ -96,6 +96,7 @@ CREATE TABLE ENTRADA (
                          DATA TIMESTAMP,
                          CPF_PAC CHAR(11) REFERENCES PACIENTE,
                          CNES_HOSP CHAR(7) REFERENCES HOSPITAL
+                         DESCRICAO TEXT
 );
 
 CREATE TABLE PROCEDIMENTO (

@@ -17,12 +17,10 @@ class TelaLogin:
 
         #JOptionPane
         r1 = ttk.Radiobutton(self.frm, text="Sou Paciente", variable=self.tipo, value="PACIENTE")
-        r2 = ttk.Radiobutton(self.frm, text="Sou Prof. Saúde", variable=self.tipo, value="PROFISSIONAL")
         r3 = ttk.Radiobutton(self.frm, text="Sou Funcionário", variable=self.tipo, value="FUNCIONARIO")
         
         r1.grid(column=0, row=1, columnspan=2, sticky=W)
-        r2.grid(column=0, row=2, columnspan=2, sticky=W)
-        r3.grid(column=0, row=3, columnspan=2, sticky=W)
+        r3.grid(column=0, row=2, columnspan=2, sticky=W)
 
         
         ttk.Label(self.frm, text="Login:").grid(column=0, row=4, pady=10)

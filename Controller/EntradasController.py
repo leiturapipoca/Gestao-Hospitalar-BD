@@ -2,6 +2,7 @@ from tkinter import messagebox, END
 from View.TelaEntradas import TelaEntradas
 from Model.EntradaDAO import EntradaDAO
 import Model.HospitalDAO as HospitalDAO 
+from Controller.ProcedimentosController import ProcedimentosController
 
 class EntradasController:
     def __init__(self, root, usuario):
@@ -49,8 +50,13 @@ class EntradasController:
         if sucesso:
             messagebox.showinfo("Sucesso", "Entrada registrada!")
             self.view.campo_cpf.delete(0, END)
+
+            self.view.frm.destroy()
+            ProcedimentosController(self.view.janela)
+            
         else:
             messagebox.showerror("Erro", "Falha ao registrar. Verifique se o CPF existe.")
+
 
     def voltar(self):
         from Controller.InternosController import InternosController
