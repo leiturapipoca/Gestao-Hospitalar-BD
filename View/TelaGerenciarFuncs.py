@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import ttk
-from tkinter.ttk import Button
+from tkinter.ttk import Button, Entry
 
 class TelaGerenciarFuncs:
     def __init__(self, root: Tk):
@@ -8,10 +8,11 @@ class TelaGerenciarFuncs:
 
         self.janela.title("Gerenciamento de Funcionários")
 
+
         self.frm = ttk.Frame(self.janela, padding=20)
         self.frm.grid()
         self.add_func_button: Button = ttk.Button(self.frm, text="Adicionar funcionário")
-        self.remove_func_button: Button = ttk.Button(self.frm, text="Remover Funcionário")
+        self.remove_func_button: Button = ttk.Button(self.frm, text="Remover")
         self.search_func_button: Button = ttk.Button(self.frm, text="Consultar Informações de Funcionário")
         self.return_button: Button = ttk.Button(self.frm, text="Voltar")
 
@@ -30,6 +31,4 @@ class TelaGerenciarFuncs:
         self.remove_func_button.config(command=callback)
 
     def set_action_consultar_func(self, callback):
-        self.search_func_button.config(command=callback)
-
-        
+        self.search_func_button.config(command=callback)        
