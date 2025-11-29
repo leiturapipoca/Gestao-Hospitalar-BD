@@ -4,5 +4,6 @@ from tkinter import ttk
 
 class ProcedimentosController:
     def __init__(self,root: Tk):
-        self.view = TelaProcedimentos(root)
+
+        self.view = TelaProcedimentos(root, ("batata", "outro"))
         

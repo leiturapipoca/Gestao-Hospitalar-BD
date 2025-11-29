@@ -205,7 +205,14 @@ VALUES
 INSERT INTO TIPO_PROC (NOME)
 VALUES
     ('Raio-X'),
-    ('Curativo');
+    ('Curativo'),
+    ('Tomografia'),
+    ('Ultrassom'),
+    ('Ressonância Magnética'),
+    ('Exame de Sangue'),
+    ('Eletrocardiograma'),
+    ('Endoscopia'),
+    ('Consulta');
 
 INSERT INTO ENTRADA (DATA, CPF_PAC, CNES_HOSP)
 VALUES
@@ -219,7 +226,19 @@ VALUES
 INSERT INTO PROCEDIMENTO (ID_TIPO, COD_ENTR)
 VALUES
     (1, 1),
-    (2, 2);
+    (2, 2),
+    (1, 2),
+    (2, 1),
+    (1, 1),
+    (2, 2),
+    (3, 1),
+    (4, 1),
+    (5, 2),
+    (6, 1),
+    (7, 2),
+    (8, 1),
+    (3, 2),
+    (4, 2);
 
 -- ============================
 -- 8) TABELAS RELACIONAIS
