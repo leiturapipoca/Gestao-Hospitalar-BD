@@ -1,6 +1,9 @@
 # Model/PacienteDAO.py
 import psycopg2
 from exemplos_python.test_queries import connect_to_database
+import logging 
+
+logger = logging.getLogger("PacienteDAO")
 
 class PacienteDAO:
     def __init__(self):
@@ -125,11 +128,11 @@ class PacienteDAO:
                 DELETE FROM PACIENTE WHERE PACIENTE.CPF = '{cpf}';
             """
             cursor.execute(sql)
-            rows = cursor.fetchall()
+            self.connection.commit()
             cursor.close()
-            return rows if rows else []
         except Exception as e:
-            print(f"[remover] Erro: {e}")
+            logger.error(f"[remover] Erro: {e}")
+            raise e
             
     
     def fechar_conexao(self):
