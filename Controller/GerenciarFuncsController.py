@@ -19,16 +19,29 @@ class GerenciarFuncsController:
         view.set_action_consultar_func(self.select_consultar_func)
         view.set_action_voltar(self.voltar)
 
+    def config_tela_adicionar_funcs(self, view: TelaAdicionarFunc):
+        view.set_return_action(self.voltar)
+
+    def config_tela_remover_funcs(self, view: TelaRemoverFunc):
+        view.set_return_action(self.voltar)
+
 
     def select_adicionar_func(self):
         logging.info("usuário selecionou: adicionar funcionário")
         self.view.frm.destroy()
-        self.view = TelaAdicionarFunc(self.root)
+        mock_funções = ("pedreiro", "operário", "outra função")
+        self.view = TelaAdicionarFunc(self.root, mock_funções)
+        self.config_tela_adicionar_funcs(self.view)
+
+    def adicionar_func(self):
+        logging.warning("adicionar_func callback was not yet implemented")
+        pass
 
     def select_remover_func(self):
         logging.info("usuário selecionou: remover funcionário")
         self.view.frm.destroy()
         self.view = TelaRemoverFunc(self.root)
+        self.config_tela_remover_funcs(self.view)
 
     def select_consultar_func(self):
         logging.info("usuário selecionou: consultar funcionário")
