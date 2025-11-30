@@ -5,32 +5,41 @@ class EntradaDAO:
     def __init__(self):
         self.connection = connect_to_database()
 
-    def register_entry(self, cpf_paciente, cnes_hospital):
+    def registrar_entrada(self, cpf_paciente, cnes_hospital):
+        """
+        Insere a entrada e RETORNA O ID GERADO.
+        Retorna o ID (int) se sucesso, ou None se falha.
+        """
         try:
             cursor = self.connection.cursor()
             
-            #verifica se o paciente existe
+            # 1. Validação simples: Paciente existe?
             cursor.execute("SELECT 1 FROM PACIENTE WHERE CPF = %s", (cpf_paciente,))
             if not cursor.fetchone():
-                print(f"Validação Falhou: Paciente {cpf_paciente} não encontrado.")
-                return False # Retorna falso para o Controller avisar o usuário
+                print(f"Paciente {cpf_paciente} não encontrado.")
+                return None 
 
-            
+            # 2. INSERT com RETURNING para pegar o ID automático (Serial)
             sql = """
                 INSERT INTO ENTRADA (DATA, CPF_PAC, CNES_HOSP)
                 VALUES (NOW(), %s, %s)
+                RETURNING CODIGO
             """
             
             cursor.execute(sql, (cpf_paciente, cnes_hospital))
             
+            # Pega o ID gerado (O Pulo do Gato)
+            id_gerado = cursor.fetchone()[0]
+            
             self.connection.commit() 
             cursor.close()
-            return True 
+            
+            return id_gerado # Retorna o número (Ex: 5)
             
         except Exception as e:
             print(f"Erro ao registrar entrada: {e}")
             self.connection.rollback()
-            return False
+            return None
 
     def fechar_conexao(self):
         if self.connection:

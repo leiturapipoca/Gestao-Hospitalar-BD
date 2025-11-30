@@ -95,7 +95,7 @@ CREATE TABLE ENTRADA (
                          CODIGO SERIAL PRIMARY KEY,
                          DATA TIMESTAMP,
                          CPF_PAC CHAR(11) REFERENCES PACIENTE,
-                         CNES_HOSP CHAR(7) REFERENCES HOSPITAL
+                         CNES_HOSP CHAR(7) REFERENCES HOSPITAL,
                          DESCRICAO TEXT
 );
 
@@ -123,7 +123,67 @@ CREATE TABLE MEDICO_ESPEC (
                               ID_SPEC SERIAL REFERENCES ESPECIALIDADE,
                               PRIMARY KEY (CRM_MED, ID_SPEC)
 );
+CREATE OR REPLACE PROCEDURE PR_REGISTRAR_PROCEDIMENTO_COMPLETO(
+    p_cod_entrada INT,          -- ID da Entrada (que veio da tela anterior)
+    p_crm_medico CHAR(9),       -- CRM digitado
+    p_nome_procedimento TEXT,   -- Escolhido no Combobox
+    p_nome_doenca TEXT          -- Digitado no campo de texto
+)
+    LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_cpf_paciente CHAR(11);
+    v_cpf_medico CHAR(11);
+    v_id_tipo_proc INT;
+    v_novo_cod_proc INT;
+    v_doenca_caps TEXT;
+BEGIN
+    -- 1. Descobrir quem é o Paciente através da Entrada
+    SELECT CPF_PAC INTO v_cpf_paciente
+    FROM ENTRADA WHERE CODIGO = p_cod_entrada;
 
+    IF v_cpf_paciente IS NULL THEN
+        RAISE EXCEPTION 'Entrada % não encontrada.', p_cod_entrada;
+    END IF;
+
+    -- 2. TRATAMENTO DA DOENÇA (Lógica solicitada)
+    -- Transforma em MAIÚSCULA
+    v_doenca_caps := UPPER(p_nome_doenca);
+
+    -- Verifica se o paciente já tem essa doença registrada
+    IF NOT EXISTS (SELECT 1 FROM DOENCA WHERE DESCRICAO = v_doenca_caps AND PORTADOR = v_cpf_paciente) THEN
+        -- Se não tem, insere
+        INSERT INTO DOENCA (DESCRICAO, PORTADOR)
+        VALUES (v_doenca_caps, v_cpf_paciente);
+    END IF;
+
+    -- 3. Descobrir ID do Médico pelo CRM
+    SELECT CPF INTO v_cpf_medico
+    FROM PROFISSIONAL_SAUDE WHERE CRM_MED = p_crm_medico;
+
+    IF v_cpf_medico IS NULL THEN
+        RAISE EXCEPTION 'Médico com CRM % não encontrado.', p_crm_medico;
+    END IF;
+
+    -- 4. Descobrir ID do Tipo de Procedimento
+    SELECT ID INTO v_id_tipo_proc
+    FROM TIPO_PROC WHERE NOME = p_nome_procedimento;
+
+    IF v_id_tipo_proc IS NULL THEN
+        RAISE EXCEPTION 'Procedimento inválido.';
+    END IF;
+
+    -- 5. Inserir o Procedimento
+    INSERT INTO PROCEDIMENTO (ID_TIPO, COD_ENTR)
+    VALUES (v_id_tipo_proc, p_cod_entrada)
+    RETURNING CODIGO INTO v_novo_cod_proc;
+
+    -- 6. Vincular Médico ao Procedimento
+    INSERT INTO PROF_PROC (COD_PROC, COD_PROF)
+    VALUES (v_novo_cod_proc, v_cpf_medico);
+
+END;
+$$;
 -- ============================
 -- 1) TABELAS BÁSICAS
 -- ============================
@@ -188,10 +248,10 @@ VALUES ('Cardiologia'), ('Pediatria');
 -- 5) PROFISSIONAL DE SAÚDE
 -- ============================
 
-INSERT INTO PROFISSIONAL_SAUDE (CPF, NOME, TIPO, SENHA, CRM_MED, COD_ENF)
+INSERT INTO PROFISSIONAL_SAUDE (CPF, NOME, TIPO, CRM_MED, COD_ENF)
 VALUES
-    ('00000000011', 'Dr. Fulano', 'M', 'med123', 'CRM000001', NULL),
-    ('00000000012', 'Enf. Beltrano', 'E', 'enf123', NULL, 1);
+    ('00000000011', 'Dr. Fulano', 'M', 'CRM000001', NULL),
+    ('00000000012', 'Enf. Beltrano', 'E', NULL, 1);
 
 INSERT INTO PROF_SAUDE_HOSP (CPF_PROF, CNES_HOSP)
 VALUES
