@@ -3,6 +3,7 @@ from View.TelaGerenciarFuncs import TelaGerenciarFuncs
 from View.TelaAdicionarFunc import TelaAdicionarFunc
 from View.TelaConsultarFunc import TelaConsultarFunc
 from View.TelaRemoverFunc import TelaRemoverFunc
+from Model.FuncaoDAO import FuncaoDao
 import logging
 
 test_logger = logging.getLogger("GerenciarFuncsController")
@@ -10,6 +11,7 @@ test_logger = logging.getLogger("GerenciarFuncsController")
 class GerenciarFuncsController:
     def __init__(self, root: Tk):
         self.root = root
+        self.funcao_dao = FuncaoDao()
         self.view: TelaGerenciarFuncs | TelaConsultarFunc | TelaAdicionarFunc | TelaRemoverFunc = TelaGerenciarFuncs(root)
         self.config_tela_gerenciar_funcs_callbacks(self.view)
 
@@ -29,8 +31,8 @@ class GerenciarFuncsController:
     def select_adicionar_func(self):
         logging.info("usuário selecionou: adicionar funcionário")
         self.view.frm.destroy()
-        mock_funções = ("pedreiro", "operário", "outra função")
-        self.view = TelaAdicionarFunc(self.root, mock_funções)
+        funcoes = tuple(self.funcao_dao.get_all_funcoes())
+        self.view = TelaAdicionarFunc(self.root, funcoes)
         self.config_tela_adicionar_funcs(self.view)
 
     def adicionar_func(self):

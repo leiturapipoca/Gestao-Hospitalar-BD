@@ -4,13 +4,16 @@ from Controller.LoginController import LoginController
 from Controller.InternosController import InternosController
 from Controller.ExternosController import ExternosController
 from Model import HospitalDAO
+from Model import FuncaoDAO
 from SQL import databaseUtils
 
 test_hosp_model = False
+test_funcao_model = True
 specific_view_test = 'login'
 
 if __name__ == "__main__":
     if test_hosp_model: HospitalDAO.run_hosp_model_tests()
+    if test_funcao_model: FuncaoDAO.run_funcao_dao_tests()
 
     root = Tk()
 
