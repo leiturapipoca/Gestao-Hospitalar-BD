@@ -63,7 +63,7 @@ class LoginController:
                 messagebox.showinfo("Sucesso", "Paciente logado")
                 # destrói o frame de login e abre o perfil do paciente
                 self.view.frm.destroy()
-                PacientePerfilController(self.view.janela, paciente_dict)
+                PacientePerfilController(self.view.janela, paciente_dict, use_toplevel=False)
 
                 # se você preferir abrir também o menu de externos (tela de ações do paciente),
                 # descomente a linha abaixo:

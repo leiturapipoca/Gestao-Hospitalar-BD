@@ -4,13 +4,15 @@ from Model.PacienteDAO import PacienteDAO
 from tkinter import messagebox
 
 class PacientePerfilController:
-    def __init__(self, root, paciente_dict):
+    def __init__(self, root, paciente_dict, use_toplevel=True):
         """
-        paciente_dict = dicionário retornado por PacienteDAO.autenticar()
+        paciente_dict = dicionário retornado por PacienteDAO.autenticar() ou buscar_por_cpf()
+        use_toplevel=False -> usa a janela raiz (substitui o login)
+        use_toplevel=True  -> abre uma janela Toplevel (comportamento antigo)
         """
         self.root = root
         self.paciente = paciente_dict
-        self.view = TelaPacientePerfil(root)
+        self.view = TelaPacientePerfil(root, use_toplevel=use_toplevel)
         self.dao = PacienteDAO()
 
         # popula os dados básicos imediatamente

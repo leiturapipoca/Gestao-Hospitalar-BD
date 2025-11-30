@@ -3,8 +3,17 @@ from tkinter import *
 from tkinter import ttk
 
 class TelaPacientePerfil:
-    def __init__(self, master):
-        self.janela = Toplevel(master) if master else Tk()
+    def __init__(self, master, use_toplevel=True):
+        """
+        Se use_toplevel for True (padrão), cria um Toplevel(master).
+        Se for False, usa master diretamente (substitui o conteúdo da janela raiz).
+        """
+        if use_toplevel:
+            self.janela = Toplevel(master) if master else Tk()
+        else:
+            # usar o master (root) diretamente — ideal para substituir a tela de login
+            self.janela = master if master else Tk()
+
         self.janela.title("Meu Perfil - Paciente")
         self.frm = ttk.Frame(self.janela, padding=12)
         self.frm.grid(sticky="nsew")
@@ -57,7 +66,7 @@ class TelaPacientePerfil:
         self.tree_procs.grid(row=9, column=0, columnspan=2, sticky="nsew")
 
         # Botão fechar
-        self.btn_fechar = ttk.Button(self.frm, text="Fechar", command=self.janela.destroy)
+        self.btn_fechar = ttk.Button(self.frm, text="Sair", command=self.janela.destroy)
         self.btn_fechar.grid(row=10, column=0, columnspan=2, pady=(10,0))
 
         # Ajuste responsivo
