@@ -53,7 +53,7 @@ CREATE TABLE FUNCINARIO (
                             MATRICULA SERIAL PRIMARY KEY,
                             NOME TEXT NOT NULL,
                             FUNC SERIAL NOT NULL,
-                            SENHA TEXT NOT NULL,
+                            SENHA TEXT,
                             FOREIGN KEY (FUNC) REFERENCES FUNCAO
 );
 
