@@ -53,7 +53,7 @@ CREATE TABLE FUNCINARIO (
                             MATRICULA SERIAL PRIMARY KEY,
                             NOME TEXT NOT NULL,
                             FUNC SERIAL NOT NULL,
-                            SENHA TEXT,
+                            SENHA TEXT NOT NULL,
                             FOREIGN KEY (FUNC) REFERENCES FUNCAO
 );
 
@@ -123,6 +123,32 @@ CREATE TABLE MEDICO_ESPEC (
                               ID_SPEC SERIAL REFERENCES ESPECIALIDADE,
                               PRIMARY KEY (CRM_MED, ID_SPEC)
 );
+
+-- 1. A Função que faz o serviço sujo
+CREATE OR REPLACE FUNCTION FN_LIMPAR_DADOS_PACIENTE()
+    RETURNS TRIGGER AS $$
+BEGIN
+    -- Remove as doenças do paciente
+    DELETE FROM DOENCA WHERE PORTADOR = OLD.CPF;
+
+    -- Remove os telefones do paciente
+    DELETE FROM TELEFONE WHERE PROPRIETARIO = OLD.CPF;
+
+    -- Remove as entradas (e procedimentos, se tiver cascade lá)
+    -- Obs: Se ENTRADA tiver filhos (Procedimentos), você precisa apagar eles antes ou ter ON DELETE CASCADE lá.
+    WITH AUX AS (SELECT * FROM PROCEDIMENTO JOIN ENTRADA ON PROCEDIMENTO.COD_ENTR = ENTRADA.CODIGO)
+    DELETE FROM PROCEDIMENTO WHERE PROCEDIMENTO.COD_ENTR
+    DELETE FROM ENTRADA WHERE CPF_PAC = OLD.CPF;
+
+    RETURN OLD; -- Permite que a exclusão do Paciente continue
+END;
+$$ LANGUAGE plpgsql;
+
+-- 2. O Gatilho que dispara ANTES de apagar
+CREATE TRIGGER TRG_BEFORE_DELETE_PACIENTE
+    BEFORE DELETE ON PACIENTE
+    FOR EACH ROW
+EXECUTE FUNCTION FN_LIMPAR_DADOS_PACIENTE();
 
 CREATE OR REPLACE PROCEDURE PR_REGISTRAR_PROCEDIMENTO_COMPLETO(
     p_cod_entrada INT,          -- ID da Entrada (que veio da tela anterior)
