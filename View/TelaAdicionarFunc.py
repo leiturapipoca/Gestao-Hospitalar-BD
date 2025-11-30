@@ -22,17 +22,23 @@ class TelaAdicionarFunc:
         self.func_selection['values'] = funcoes
         self.func_selection.grid(column=1, row=3)
 
+        self.confirm_button: ttk.Button = ttk.Button(self.frm, text="confirmar")
+        self.confirm_button.grid(column=0, row=4)
+
         self.return_button: ttk.Button = ttk.Button(self.frm, text="voltar")
-        self.return_button.grid(column=0, row=4, columnspan=2)
+        self.return_button.grid(column=1, row=4)
 
     def set_return_action(self, callback):
-        self.return_button.config(command=callback)
+        return self.return_button.config(command=callback)
 
-    def get_cpf_field(self):
-        self.cpf_field.get()
+    def set_confirm_action(self, callback):
+        return self.confirm_button.config(command=callback)
 
-    def get_name_field(self):
-        self.func_name_field.get()
+    def get_cpf_field(self) -> str:
+        return self.cpf_field.get()
 
-    def get_func_field(self):
-        self.func_selection.get()
+    def get_name_field(self) -> str:
+        return self.func_name_field.get()
+
+    def get_func_field(self) -> str:
+        return self.func_selection.get()
