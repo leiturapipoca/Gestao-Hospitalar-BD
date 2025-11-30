@@ -5,7 +5,7 @@ class EntradaDAO:
     def __init__(self):
         self.connection = connect_to_database()
 
-    def registrar_entrada(self, cpf_paciente, cnes_hospital):
+    def registrar_entrada(self, cpf_paciente, cnes_hospital, entry_desc):
         """
         Insere a entrada e RETORNA O ID GERADO.
         Retorna o ID (int) se sucesso, ou None se falha.
@@ -21,12 +21,12 @@ class EntradaDAO:
 
             # 2. INSERT com RETURNING para pegar o ID automático (Serial)
             sql = """
-                INSERT INTO ENTRADA (DATA, CPF_PAC, CNES_HOSP)
-                VALUES (NOW(), %s, %s)
+                INSERT INTO ENTRADA (DATA, CPF_PAC, CNES_HOSP, DESCRICAO)
+                VALUES (NOW(), %s, %s, %s)
                 RETURNING CODIGO
             """
             
-            cursor.execute(sql, (cpf_paciente, cnes_hospital))
+            cursor.execute(sql, (cpf_paciente, cnes_hospital, entry_desc))
             
             # Pega o ID gerado (O Pulo do Gato)
             id_gerado = cursor.fetchone()[0]

@@ -51,14 +51,14 @@ class EntradasController:
         cpf = self.view.get_cpf()
         # Usamos o código CNES guardado na memória, não o texto da tela
         cnes_salvar = self.cnes_vinculado
-
+        entry = self.view.get_description()
         if not cpf or not cnes_salvar:
             messagebox.showwarning("Aviso", "Preencha o CPF e verifique o hospital!")
             return
         
         # Chama o DAO e espera receber o ID da nova entrada (ex: 55)
         # Nota: O DAO deve estar configurado com 'RETURNING CODIGO'
-        id_entrada = self.dao.registrar_entrada(cpf, cnes_salvar)
+        id_entrada = self.dao.registrar_entrada(cpf, cnes_salvar, entry)
 
         if id_entrada:
             # Sucesso! Destrói a tela atual
