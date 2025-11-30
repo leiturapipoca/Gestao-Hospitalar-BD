@@ -28,9 +28,9 @@ class TelaProcedimentos:
         self.combo_procedimento.grid(column=1, row=3, sticky=EW)
 
         # Campo: Número da Sala
-        ttk.Label(self.frm, text="Número da Sala:").grid(column=0, row=4, sticky=W, pady=5)
-        self.campo_sala = ttk.Entry(self.frm, width=30)
-        self.campo_sala.grid(column=1, row=4, sticky=EW)
+       # ttk.Label(self.frm, text="Número da Sala:").grid(column=0, row=4, sticky=W, pady=5)
+        #self.campo_sala = ttk.Entry(self.frm, width=30)
+        #self.campo_sala.grid(column=1, row=4, sticky=EW)
 
         # Botões
         self.btn_salvar = ttk.Button(self.frm, text="CONFIRMAR PROCEDIMENTO")

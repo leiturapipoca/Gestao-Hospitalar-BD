@@ -173,6 +173,24 @@ def num_of_docs_in_hosp(cnes: str, connection: Any) -> int:
     rows = cursor.fetchall()
     return rows[0][0]
 
+def entries(cnes: str, connection: Any) -> int:
+    validate_cnes(cnes)
+    cursor = connection.cursor()
+    cursor.execute(f"""
+                   SELECT COUNT(*) FROM prof_saude_hosp
+                   JOIN profissional_saude
+                   ON profissional_saude.cpf = prof_saude_hosp.cpf_prof
+                   WHERE
+                       prof_saude_hosp.cnes_hosp = '{cnes}'
+                       AND 
+                       profissional_saude.tipo = 'M';
+                   """)
+    rows = cursor.fetchall()
+    return rows[0][0]
+
+
+
+
 if __name__ == '__main__':
     print("\x1b[31mCONSULTE OS LOGS EM CASO DE ERRO\x1b[0m")
     connection = connect_to_database()

@@ -123,6 +123,7 @@ CREATE TABLE MEDICO_ESPEC (
                               ID_SPEC SERIAL REFERENCES ESPECIALIDADE,
                               PRIMARY KEY (CRM_MED, ID_SPEC)
 );
+
 CREATE OR REPLACE PROCEDURE PR_REGISTRAR_PROCEDIMENTO_COMPLETO(
     p_cod_entrada INT,          -- ID da Entrada (que veio da tela anterior)
     p_crm_medico CHAR(9),       -- CRM digitado

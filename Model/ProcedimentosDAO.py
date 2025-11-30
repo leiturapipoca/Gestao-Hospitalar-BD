@@ -6,36 +6,80 @@ class ProcedimentosDAO:
         self.connection = connect_to_database()
 
     def get_tipos_procedimento(self):
-        """Busca nomes para o combobox"""
+        """
+        Busca os nomes dos procedimentos na tabela TIPO_PROC para preencher o Combobox.
+        """
         lista = []
         try:
             cursor = self.connection.cursor()
+            # Busca todos os tipos ordenados por nome
             cursor.execute("SELECT NOME FROM TIPO_PROC ORDER BY NOME")
+            
+            # Transforma a lista de tuplas em uma lista simples de strings
             for row in cursor.fetchall():
                 lista.append(row[0])
+                
             cursor.close()
         except Exception as e:
-            print(f"Erro ao buscar tipos: {e}")
-        return tuple(lista)
+            print(f"Erro ao buscar tipos de procedimento: {e}")
+            
+        return tuple(lista) # Retorna uma tupla para o Tkinter usar
 
-    def registrar_procedimento_completo(self, cod_entrada, crm, procedimento, doenca):
+    def get_medicos_disponiveis(self):
         """
-        Chama a procedure que salva Procedimento, Médico e Doença de uma vez.
+        Busca CRMs e Nomes dos médicos. Útil se você quiser validar ou mostrar na tela.
+        """
+        lista_medicos = []
+        try:
+            cursor = self.connection.cursor()
+            sql = """
+                SELECT M.CRM, P.NOME 
+                FROM MEDICO M
+                JOIN PROFISSIONAL_SAUDE P ON M.CRM = P.CRM_MED
+            """
+            cursor.execute(sql)
+            
+            for row in cursor.fetchall():
+                # Formata como string "CRM - Nome"
+                lista_medicos.append(f"{row[0]} - {row[1]}")
+                
+            cursor.close()
+        except Exception as e:
+            print(f"Erro ao buscar médicos: {e}")
+            
+        return tuple(lista_medicos)
+
+    def registrar_procedimento_completo(self, cod_entrada, crm_medico, procedimento, nome_doenca):
+        """
+        Chama a SUPER PROCEDURE no banco que faz tudo de uma vez.
         """
         try:
             cursor = self.connection.cursor()
             
-            sql = "CALL PR_REGISTRAR_PROCEDIMENTO_COMPLETO(%s, %s, %s, %s)"
-            cursor.execute(sql, (cod_entrada, crm, procedimento, doenca))
+            # --- A CORREÇÃO ESTÁ AQUI ---
+            # Adicionamos ::TIPO para dizer ao Postgres exatamente o que estamos enviando.
+            # p_cod_entrada -> INT
+            # p_crm_medico -> CHAR(9)
+            # p_nome_procedimento -> TEXT
+            # p_nome_doenca -> TEXT
             
+            sql = "CALL PR_REGISTRAR_PROCEDIMENTO_COMPLETO(%s::INT, %s::CHAR(9), %s::TEXT, %s::TEXT)"
+            
+            cursor.execute(sql, (cod_entrada, crm_medico, procedimento, nome_doenca))
+            
+            # Commit é obrigatório para confirmar a transação da Procedure
             self.connection.commit()
+            
             cursor.close()
-            return True, "Sucesso"
+            return True, "Procedimento registrado com sucesso!"
             
         except psycopg2.DatabaseError as e:
             self.connection.rollback()
-            # Retorna o erro específico do banco (ex: Médico não encontrado)
-            return False, f"Erro de Banco: {e.pgerror}"
+            # Captura o erro "bonito" do banco (RAISE EXCEPTION)
+            # Ex: "Erro: Médico com CRM ... não encontrado."
+            # e.pgerror traz a mensagem exata do erro
+            erro_msg = e.pgerror if e.pgerror else str(e)
+            return False, f"Erro de Banco: {erro_msg}"
             
         except Exception as e:
             self.connection.rollback()
