@@ -53,10 +53,8 @@ class PacientesController:
                                      f"Tem certeza que deseja apagar o paciente CPF {cpf}?\n\nIsso pode acionar registros de auditoria.")
         
         if resposta:
-            if self.dao.remover(cpf):
-                messagebox.showinfo("Sucesso", "Paciente removido do sistema.")
-            else:
-                messagebox.showerror("Erro", "Não foi possível remover. Verifique se o paciente possui histórico médico vinculado.")
+            self.dao.remover(cpf)
+               
 
     def consultar_historico(self):
         cpf = self.view.get_cpf()

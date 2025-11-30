@@ -1,4 +1,4 @@
-
+DROP TRIGGER IF EXISTS TRG_BEFORE_DELETE_PACIENTE ON PACIENTE;
 DROP SCHEMA public CASCADE;
 CREATE SCHEMA public;
 
@@ -128,24 +128,38 @@ CREATE TABLE MEDICO_ESPEC (
 CREATE OR REPLACE FUNCTION FN_LIMPAR_DADOS_PACIENTE()
     RETURNS TRIGGER AS $$
 BEGIN
-    -- Remove as doenças do paciente
-    DELETE FROM DOENCA WHERE PORTADOR = OLD.CPF;
+    -- 1º: Apagar os vínculos de Médicos com Procedimentos (PROF_PROC)
+    -- Isso é o "bisneto". Se não apagar, não dá pra apagar o Procedimento.
+    DELETE FROM PROF_PROC
+    WHERE COD_PROC IN (
+        SELECT P.CODIGO
+        FROM PROCEDIMENTO P
+                 JOIN ENTRADA E ON P.COD_ENTR = E.CODIGO
+        WHERE E.CPF_PAC = OLD.CPF
+    );
 
-    -- Remove os telefones do paciente
-    DELETE FROM TELEFONE WHERE PROPRIETARIO = OLD.CPF;
+    -- 2º: Apagar os Procedimentos (PROCEDIMENTO)
+    -- Esses são os "netos" (filhos da Entrada)
+    DELETE FROM PROCEDIMENTO
+    WHERE COD_ENTR IN (
+        SELECT CODIGO
+        FROM ENTRADA
+        WHERE CPF_PAC = OLD.CPF
+    );
 
-    -- Remove as entradas (e procedimentos, se tiver cascade lá)
-    -- Obs: Se ENTRADA tiver filhos (Procedimentos), você precisa apagar eles antes ou ter ON DELETE CASCADE lá.
-    WITH AUX AS (SELECT * FROM PROCEDIMENTO JOIN ENTRADA ON PROCEDIMENTO.COD_ENTR = ENTRADA.CODIGO JOIN PACIENTE ON PACIENTE.CPF = ENTRADA.CPF_PAC WHERE PACIENTE.CPF = OLD.CPF)
-    DELETE FROM PROCEDIMENTO WHERE PROCEDIMENTO.COD_ENTR = AUX.COD_ENTR;
-
+    -- 3º: Apagar as Entradas (ENTRADA)
+    -- Esses são os "filhos" diretos
     DELETE FROM ENTRADA WHERE CPF_PAC = OLD.CPF;
 
-    RETURN OLD; -- Permite que a exclusão do Paciente continue
+    -- 4º: Apagar Doenças e Telefones (Outros filhos)
+    DELETE FROM DOENCA WHERE PORTADOR = OLD.CPF;
+    DELETE FROM TELEFONE WHERE PROPRIETARIO = OLD.CPF;
+
+    -- 5º: Retorna OLD para permitir que o Paciente finalmente seja apagado
+    RETURN OLD;
 END;
 $$ LANGUAGE plpgsql;
 
--- 2. O Gatilho que dispara ANTES de apagar
 CREATE TRIGGER TRG_BEFORE_DELETE_PACIENTE
     BEFORE DELETE ON PACIENTE
     FOR EACH ROW

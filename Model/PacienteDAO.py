@@ -113,6 +113,25 @@ class PacienteDAO:
             print(f"[PacienteDAO.get_procedimentos_por_cpf] Erro: {e}")
             return []
 
+    def remover(self, cpf):
+        """
+        Retorna procedimentos/exames associados ao paciente.
+        Cada item: (procedimento_codigo, nome_tipo_proc, codigo_entrada, data_entrada, hospital_cnes)
+        Faz join PROCEDIMENTO -> TIPO_PROC -> ENTRADA (filtrando por CPF_PAC).
+        """
+        try:
+            cursor = self.connection.cursor()
+            sql = f"""
+                DELETE FROM PACIENTE WHERE PACIENTE.CPF = '{cpf}';
+            """
+            cursor.execute(sql)
+            rows = cursor.fetchall()
+            cursor.close()
+            return rows if rows else []
+        except Exception as e:
+            print(f"[remover] Erro: {e}")
+            
+    
     def fechar_conexao(self):
         if self.connection:
             self.connection.close()
