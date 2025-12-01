@@ -55,7 +55,39 @@ class FuncionarioDAO:
         except psycopg2.errors.UniqueViolation:
             self.connection.rollback() # Cancela a tentativa
             return False, f"Erro: O CPF {cpf} já está cadastrado no sistema."
+        
 
+    def get_func_by_cpf(self, cpf: str):
+        logger.info("entrou na função get_func_by_cpf")
+        cursor = self.connection.cursor()
+        cursor.execute(f"""
+            SELECT * FROM FUNC_COMPLETO WHERE CPF = '{cpf}';
+        """)
+        rows: list[tuple] = cursor.fetchall()
+        if len(rows) < 1:
+            raise ValueError("não encontrou nenhum cpf correspondente")
+        rows = [{'cpf': row[0], 'nome': row[1], 'matricula': row[2], 'funcao_nome': row[3]} for row in rows][0]
+        logger.info(f"rows geradas pelo select: {rows}")
+        logger.info(f"tipo da variável rows: {rows}")
+        return rows
+        
+
+    def get_func_by_nome(self, nome: str):
+        logger.info("entrou na função get_func_by_nome")
+        cursor = self.connection.cursor()
+        cursor.execute(f"""
+            SELECT * FROM FUNC_COMPLETO WHERE NOME LIKE '{nome}%';
+        """)
+        rows: list[tuple] = cursor.fetchall()
+        if len(rows) > 1:
+            raise NameError("existe mais de uma correspondência para esse nome")
+        if len(rows) < 1:
+            raise ValueError("não encontrou nenhum nome correspondente")
+        rows = [{'cpf': row[0], 'nome': row[1], 'matricula': row[2], 'funcao_nome': row[3]} for row in rows][0]
+        logger.info(f"rows geradas pelo select: {rows}")
+        logger.info(f"tipo da variável rows: {rows}")
+        return rows
+        
 
     def remove_funcionario(self, cpf: str):
         logger.info("entrou-se na query de remove funcionario")
@@ -104,7 +136,27 @@ class FuncionarioDAO:
             return False, f"Erro ao salvar foto: {e}"
 
   
-        
+    def get_foto_by_cpf(self, cpf):
+        """
+        Busca os dados binários da foto de um funcionário pelo CPF.
+        Retorna: bytes ou None
+        """
+        try:
+            cursor = self.connection.cursor()
+            # Busca a FOTO onde o CPF bate
+            sql = "SELECT FOTO FROM FUNCINARIO WHERE CPF = %s"
+            cursor.execute(sql, (cpf,))
+            row = cursor.fetchone()
+            cursor.close()
+            
+            if row and row[0]:
+                return row[0] # Retorna os bytes da imagem
+            return None
+        except Exception as e:
+            print(f"Erro ao buscar foto: {e}")
+            return None
+
+
     def fechar_conexao(self):
         if self.connection:
             self.connection.close()
