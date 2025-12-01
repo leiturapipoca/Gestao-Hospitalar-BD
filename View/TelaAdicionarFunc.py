@@ -17,15 +17,19 @@ class TelaAdicionarFunc:
         self.func_name_field: ttk.Entry = ttk.Entry(self.frm, width=30)
         self.func_name_field.grid(column=1, row=1)
 
+        ttk.Label(self.frm, text="Senha provisória:", width=30).grid(column=0, row=2) 
+        self.func_pass_field: ttk.Entry = ttk.Entry(self.frm, width=30)
+        self.func_pass_field.grid(column=1, row=2)
+
         ttk.Label(self.frm, text="Func:", width=30).grid(column=0, row=3)
         self.func_selection: ttk.Combobox = ttk.Combobox(self.frm, width=28, state='readonly')
         self.func_selection['values'] = funcoes
         self.func_selection.grid(column=1, row=3)
 
-        self.confirm_button: ttk.Button = ttk.Button(self.frm, text="confirmar")
+        self.confirm_button: ttk.Button = ttk.Button(self.frm, text="Confirmar")
         self.confirm_button.grid(column=0, row=4)
 
-        self.return_button: ttk.Button = ttk.Button(self.frm, text="voltar")
+        self.return_button: ttk.Button = ttk.Button(self.frm, text="Voltar")
         self.return_button.grid(column=1, row=4)
 
     def set_return_action(self, callback):
@@ -42,3 +46,6 @@ class TelaAdicionarFunc:
 
     def get_func_field(self) -> str:
         return self.func_selection.get()
+    
+    def get_func_pass(self) -> str:
+        return self.func_pass_field.get()

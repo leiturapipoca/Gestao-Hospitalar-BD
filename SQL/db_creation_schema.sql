@@ -246,7 +246,7 @@ VALUES
     ('Asma', '00000000002');
 
 INSERT INTO FUNCAO (NOME)
-VALUES ('Recepcionista'), ('Segurança');
+VALUES ('Recepcionista'), ('Secretário'), ('Diretor'), ('Superintendente'), ('Auditor');
 
 INSERT INTO ADMINISTRADOR (NOME)
 VALUES ('Admin 1'), ('Admin 2');

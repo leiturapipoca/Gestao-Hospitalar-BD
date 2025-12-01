@@ -43,15 +43,7 @@ def select_everything_from(table: str, connection: Any) -> list[tuple]:
         raise e
     
 
-def select_everything_from_users(table: str, connection: Any) -> list[tuple]:
-    try:
-        cursor = connection.cursor()
-        cursor.execute(f"SELECT * FROM {table}")
-        rows = cursor.fetchall()    
-        return rows
-    except Exception as e:
-        logger.error("erro na função 'select_everything_from'")
-        raise e
+
     
 
 
@@ -173,6 +165,20 @@ def num_of_docs_in_hosp(cnes: str, connection: Any) -> int:
     rows = cursor.fetchall()
     return rows[0][0]
 
+def funcionarios(func: str, connection: Any) -> int:
+    try:
+        cursor = connection.cursor()
+        cursor.execute(f"""SELECT * FROM FUNCINARIO;""")
+        rows = cursor.fetchall()
+        return rows
+    except Exception as e:
+        logger.error("erro na função 'get_hospital_rooms'")
+        raise e
+
+
+
+
+
 def entries(cnes: str, connection: Any) -> int:
     validate_cnes(cnes)
     cursor = connection.cursor()
@@ -204,10 +210,7 @@ if __name__ == '__main__':
     for row in rows3:
         print(row)
     rows4 = get_workers("HOSPITAL","FUNCINARIO","FUNC_HOSP", connection)
-    for row in rows4:
-        print(row)
-    rows5 = select_everything_from_users("USUARIO", connection)
+    rows5 = funcionarios("FUNCINARIOS", connection)
     for row in rows5:
         print(row)
-    n1 = num_of_docs_in_hosp("0000001", connection)
-    print(n1)
+    
