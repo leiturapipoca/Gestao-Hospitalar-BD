@@ -6,6 +6,7 @@ from View.TelaConsultarFunc import TelaConsultarFunc
 from View.TelaRemoverFunc import TelaRemoverFunc
 from Model.FuncaoDAO import FuncaoDao
 from Model.FuncionarioDAO import FuncionarioDAO
+from tkinter import filedialog
 import logging
 
 test_logger = logging.getLogger("GerenciarFuncsController")
@@ -33,8 +34,67 @@ class GerenciarFuncsController:
         view.set_return_action(self.voltar)
         view.set_confirm_action(self.remover_func)
 
+
     def config_tela_consultar_funcs(self, view: TelaConsultarFunc):
+        view.set_search_by_cpf_action(self.consultar_por_cpf) # Exemplo
+        view.sef_search_by_name_action(self.consultar_por_nome)
+        # Liga o botão de download
+
+        view.set_download_action(self.baixar_foto_funcionario)
         view.set_return_action(self.voltar)
+
+
+    
+    def consultar_por_cpf(self):
+         logging.info("selecionou consultar por cpf")
+         acha_cpf = self.view.get_cpf_field()
+         logging.info(f"cpf buscado: {acha_cpf}")
+         if not acha_cpf :
+            logging.warning("não achou o cpf na função consultar_por_cpf")
+            messagebox.showwarning("Aviso", "Preencha todos os campos obrigatórios.")
+            return
+         else:
+            try: dados = self.funcionario_dao.get_func_by_cpf(acha_cpf)
+            except ValueError:
+                logging.warning("não há correspondência ao cpf informado no banco de dados")
+                messagebox.showwarning("Aviso", "o cpf informado não foi encontrado")
+            self.view.cpf = dados['cpf']
+            self.view.nome = dados['nome']
+            self.view.funcao = dados['funcao_nome']
+            self.view.matricula = dados['matricula']
+            self.view.frm.destroy()
+            self.view.render_view()
+            self.config_tela_consultar_funcs(self.view)
+        
+
+    def consultar_por_nome(self):
+         logging.info("selecionou consultar por nome")
+         acha_nome = self.view.get_nome_field()
+         logging.info(f"nome buscado: {acha_nome}")
+         if not acha_nome :
+            logging.warning("não achou o nome na função consultar_por_nome")
+            messagebox.showwarning("Aviso", "Preencha todos os campos obrigatórios.")
+            return
+         else:
+            try:
+                dados = self.funcionario_dao.get_func_by_nome(acha_nome)
+            except ValueError: 
+                logging.warning("Não há ninguém cadastrado com esse nome")
+                messagebox.showwarning("Aviso", "o nome informado não foi encontrado")
+            except NameError:
+                logging.warning("Há mais de uma correspondência para esse nome")
+                messagebox.showwarning("Aviso", "o nome informado não foi encontrado")
+
+                
+            self.view.cpf = dados['cpf']
+            self.view.nome = dados['nome']
+            self.view.funcao = dados['funcao_nome']
+            self.view.matricula = dados['matricula']
+            self.view.frm.destroy()
+            self.view.render_view()
+            self.config_tela_consultar_funcs(self.view)
+         
+         
 
     def select_adicionar_func(self):
         logging.info("usuário selecionou: adicionar funcionário")
@@ -43,6 +103,36 @@ class GerenciarFuncsController:
         self.view = TelaAdicionarFunc(self.root, funcoes)
         self.config_tela_adicionar_funcs(self.view)
 
+    def baixar_foto_funcionario(self):
+        # Pega o CPF do funcionário que está sendo mostrado na tela
+        cpf_atual = self.view.cpf 
+        
+        if not cpf_atual or cpf_atual == "---":
+            messagebox.showwarning("Aviso", "Nenhum funcionário selecionado.")
+            return
+
+        # 1. Busca os bytes no banco
+        dados_foto = self.funcionario_dao.get_foto_by_cpf(cpf_atual)
+        
+        if not dados_foto:
+            messagebox.showinfo("Info", "Este funcionário não possui foto cadastrada.")
+            return
+
+        # 2. Abre janela para escolher onde salvar
+        caminho_destino = filedialog.asksaveasfilename(
+            defaultextension=".png",
+            filetypes=[("Imagens PNG", "*.png"), ("Imagens JPG", "*.jpg"), ("Todos", "*.*")],
+            title="Salvar Foto do Funcionário"
+        )
+
+        if caminho_destino:
+            try:
+                # 3. Escreve o arquivo no disco
+                with open(caminho_destino, "wb") as arquivo:
+                    arquivo.write(dados_foto)
+                messagebox.showinfo("Sucesso", "Foto salva com sucesso!")
+            except Exception as e:
+                messagebox.showerror("Erro", f"Erro ao salvar arquivo: {e}")
 
     def select_gerenciar_func(self):
         logging.info("entrou-se na tela gerenciar func")

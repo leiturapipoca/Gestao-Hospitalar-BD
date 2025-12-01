@@ -23,8 +23,8 @@ class TelaConsultarFunc:
 
 
         ttk.Label(self.frm, text="Pesquisar por nome:").grid(column=0, row=1)
-        self.input_cpf = ttk.Entry(self.frm, width=20)
-        self.input_cpf.grid(column=1, row=1)
+        self.input_nome = ttk.Entry(self.frm, width=20)
+        self.input_nome.grid(column=1, row=1)
 
         self.search_by_cpf_button: ttk.Button = ttk.Button(self.frm, text="Pesquisar por Cpf")
         self.search_by_cpf_button.grid(column=0, row=2, pady=10)
@@ -46,6 +46,10 @@ class TelaConsultarFunc:
         ttk.Label(self.frm, text="Função:").grid(column=0, row=7)
         ttk.Label(self.frm, text=self.funcao).grid(column=1, row=7)
 
+        self.btn_download = ttk.Button(self.frm, text="Baixar Foto")
+        # Só mostra o botão se tiver um funcionário carregado (cpf válido)
+        if self.cpf and self.cpf != "---":
+            self.btn_download.grid(column=0, row=8, columnspan=2, pady=5)
         
         columns = ("hosps")
         tree = ttk.Treeview(self.frm, columns=columns, show='headings', height=8)
@@ -59,6 +63,9 @@ class TelaConsultarFunc:
         self.return_button: ttk.Button = ttk.Button(self.frm, text="voltar")
         self.return_button.grid(columnspan=2, row=10)
 
+    def set_download_action(self, callback):
+        if hasattr(self, 'btn_download'):
+            self.btn_download.config(command=callback)
 
     def set_return_action(self, callback):
         self.return_button.config(command=callback)
@@ -69,3 +76,7 @@ class TelaConsultarFunc:
     def sef_search_by_name_action(self, callback):
         self.search_by_name_button.config(command=callback)
 
+    def get_cpf_field(self):
+        return self.input_cpf.get()
+    def get_nome_field(self):
+        return self.input_nome.get()

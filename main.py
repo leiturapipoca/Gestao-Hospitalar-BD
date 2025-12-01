@@ -3,6 +3,7 @@ from tkinter import ttk
 from Controller.LoginController import LoginController
 from Controller.InternosController import InternosController
 from Controller.ExternosController import ExternosController
+from Controller.GerenciarFuncsController import GerenciarFuncsController
 from Model import HospitalDAO
 from Model import FuncaoDAO
 from SQL import databaseUtils
@@ -20,6 +21,7 @@ if __name__ == "__main__":
     if specific_view_test == 'login': app = LoginController(root)
     elif specific_view_test == 'acesso_interno': app = InternosController(root, {'nome': 'batata'})
     elif specific_view_test == 'acesso_externo': app = ExternosController(root)
+    elif specific_view_test == 'gerenciar_funcs': app = GerenciarFuncsController(root)
     
 
     root.mainloop()
