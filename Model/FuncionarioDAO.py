@@ -26,11 +26,11 @@ class FuncionarioDAO:
             return False
             
 
-    def add_funcionario(self, nome: str, cargo_id: int, senha: str):
+    def add_funcionario(self, nome: str, cpf: str, cargo_id: int, senha: str):
         cursor = self.connection.cursor()
         cursor.execute(f"""
-                           INSERT INTO FUNCINARIO (NOME, FUNC, SENHA)
-                           VALUES ('{nome}', {cargo_id}, '{senha}');
+                           INSERT INTO FUNCINARIO (NOME,CPF, FUNC, SENHA)
+                           VALUES ('{nome}','{cpf}', {cargo_id}, '{senha}');
                        """)
         self.connection.commit()
     

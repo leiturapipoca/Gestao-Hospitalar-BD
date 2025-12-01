@@ -55,10 +55,11 @@ class GerenciarFuncsController:
             new_func_name = self.view.get_name_field()
             new_func_cargo = self.view.get_func_field()
             new_func_pass = self.view.get_func_pass()
+            new_func_cpf = self.view.get_cpf_field()
             cargo_id = int(new_func_cargo.split(' ')[0])
             logging.info(f"novo funcionário Nome: {new_func_name} Cargo: {new_func_cargo} Cargo ID: {cargo_id}")
             try:
-                self.funcionario_dao.add_funcionario(new_func_name, cargo_id, new_func_pass)
+                self.funcionario_dao.add_funcionario(new_func_name,new_func_cpf, cargo_id, new_func_pass)
                 self.voltar()
             except Exception as e:
                 logging.error("erro na query de adicionar funcionário")
