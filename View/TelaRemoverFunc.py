@@ -12,7 +12,13 @@ class TelaRemoverFunc:
         self.cpf_field.grid(column=1, row=0)
 
         self.return_button: ttk.Button = ttk.Button(self.frm, text="voltar")
-        self.return_button.grid(columnspan=2, row=1)
+        self.return_button.grid(column=0, row=1)
+
+        self.remove_button: ttk.Button = ttk.Button(self.frm, text="remover")
+        self.remove_button.grid(column=1, row=1)
+
+    def set_confirm_action(self, callback):
+        self.remove_button.config(command=callback)
 
     def set_return_action(self, callback):
         self.return_button.config(command=callback)

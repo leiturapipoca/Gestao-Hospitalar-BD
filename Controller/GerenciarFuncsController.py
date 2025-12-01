@@ -30,6 +30,7 @@ class GerenciarFuncsController:
 
     def config_tela_remover_funcs(self, view: TelaRemoverFunc):
         view.set_return_action(self.voltar)
+        view.set_return_action(self.remover_func)
 
 
     def select_adicionar_func(self):
@@ -66,11 +67,22 @@ class GerenciarFuncsController:
 
         pass
 
+
     def select_remover_func(self):
         logging.info("usuário selecionou: remover funcionário")
         self.view.frm.destroy()
         self.view = TelaRemoverFunc(self.root)
         self.config_tela_remover_funcs(self.view)
+
+
+    def remover_func(self):
+        if not isinstance(self.view, TelaRemoverFunc):
+            logging.warning("botão de remover func foi pressionado sem que se estivesse na TelaRemoverFunc")
+            self.select_gerenciar_func()
+        else:
+            func_cpf = self.view.get_cpf_field()
+            self.funcionario_dao.remove_funcionario(func_cpf)
+
 
     def select_consultar_func(self):
         logging.info("usuário selecionou: consultar funcionário")

@@ -35,6 +35,12 @@ class FuncionarioDAO:
         self.connection.commit()
     
 
+    def remove_funcionario(self, cpf: str):
+        cursor = self.connection.cursor()
+        cursor.execute(f"""DELETE FROM FUNCINARIO WHERE CPF = '{cpf}';""")
+        self.connection.commit()
+
+
     def fechar_conexao(self):
         if self.connection:
             self.connection.close()
