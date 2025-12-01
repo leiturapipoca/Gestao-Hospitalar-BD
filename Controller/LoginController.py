@@ -27,7 +27,7 @@ class LoginController:
         if perfil_input == "FUNCIONARIO":
             # seu fluxo de funcionário (mantive int como você tinha)
             try:
-                autenticado = self.funcionario_dao.autenticar(int(login_input), senha_input)
+                autenticado = self.funcionario_dao.autenticar((login_input), senha_input)
             except Exception as e:
                 autenticado = False
                 print(f"[LoginController] Erro autenticando funcionário: {e}")

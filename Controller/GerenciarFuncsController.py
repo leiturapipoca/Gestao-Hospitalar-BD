@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import messagebox
 from View.TelaGerenciarFuncs import TelaGerenciarFuncs
 from View.TelaAdicionarFunc import TelaAdicionarFunc
 from View.TelaConsultarFunc import TelaConsultarFunc
@@ -49,24 +50,39 @@ class GerenciarFuncsController:
 
 
     def adicionar_func(self):
-        if not isinstance(self.view, TelaAdicionarFunc):
-            logging.warning("botão de adicionar func foi pressionado sem que se estivesse na TelaAdicionarFunc")
-            self.select_gerenciar_func()
-        else:
-            new_func_name = self.view.get_name_field()
-            new_func_cargo = self.view.get_func_field()
-            new_func_pass = self.view.get_func_pass()
-            new_func_cpf = self.view.get_cpf_field()
-            cargo_id = int(new_func_cargo.split(' ')[0])
-            logging.info(f"novo funcionário Nome: {new_func_name} Cargo: {new_func_cargo} Cargo ID: {cargo_id}")
-            try:
-                self.funcionario_dao.add_funcionario(new_func_name,new_func_cpf, cargo_id, new_func_pass)
-                self.voltar()
-            except Exception as e:
-                logging.error("erro na query de adicionar funcionário")
-                raise e
+        # 1. Pega os dados da View
+        new_func_name = self.view.get_name_field()
+        new_func_cpf = self.view.get_cpf_field()
+        new_func_pass = self.view.get_func_pass()
+        
+        # Pega o valor do Combobox (Ex: "3 Diretor" ou "3 - Diretor")
+        cargo_bruto = self.view.get_func_field() 
 
-        pass
+        # Validação simples
+        if not new_func_name or not new_func_cpf or not new_func_pass or not cargo_bruto:
+            messagebox.showwarning("Aviso", "Preencha todos os campos obrigatórios.")
+            return
+
+        # --- CORREÇÃO DO ERRO DE SINTAXE ---
+        try:
+            # Pega apenas a primeira parte da string (o número)
+            # Ex: "3 Diretor".split() -> ['3', 'Diretor'] -> Pega o '3' -> Converte para int
+            cargo_id = int(cargo_bruto.split()[0])
+        except (IndexError, ValueError):
+            messagebox.showerror("Erro", "Formato de cargo inválido. Selecione uma opção válida.")
+            return
+
+        # 2. Chama o DAO passando o ID limpo
+        # Note que o DAO retorna DOIS valores agora (sucesso, mensagem)
+        sucesso, mensagem = self.funcionario_dao.add_funcionario(new_func_name, new_func_cpf, cargo_id, new_func_pass)
+
+        # 3. Mostra o resultado na tela
+        if sucesso:
+            messagebox.showinfo("Sucesso", mensagem)
+            # Limpar campos se quiser
+            
+        else:
+            messagebox.showerror("Erro de Cadastro", mensagem)
 
 
     def select_remover_func(self):
