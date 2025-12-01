@@ -10,7 +10,7 @@ class FuncionarioDAO:
     def autenticar(self, matr_func, senha_digitada):        
         try:
             cursor = self.connection.cursor()
-            sql = "SELECT NOME FROM FUNCINARIO WHERE MATRICULA = %s AND SENHA = %s"
+            sql = "SELECT NOME FROM FUNCINARIO WHERE CPF = %s AND SENHA = %s"
             cursor.execute(sql, (matr_func, senha_digitada))
             resultado = cursor.fetchone() # Pega a primeira linha que achar
             cursor.close()
@@ -27,13 +27,19 @@ class FuncionarioDAO:
             
 
     def add_funcionario(self, nome: str, cpf: str, cargo_id: int, senha: str):
-        cursor = self.connection.cursor()
-        cursor.execute(f"""
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute(f"""
                            INSERT INTO FUNCINARIO (NOME,CPF, FUNC, SENHA)
                            VALUES ('{nome}','{cpf}', {cargo_id}, '{senha}');
                        """)
-        self.connection.commit()
-    
+            self.connection.commit()
+            return True, "Funcionário cadastrado com sucesso!"
+
+        except psycopg2.errors.UniqueViolation:
+            self.connection.rollback() # Cancela a tentativa
+            return False, f"Erro: O CPF {cpf} já está cadastrado no sistema."
+
 
     def fechar_conexao(self):
         if self.connection:
