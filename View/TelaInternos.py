@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 
+
 class TelaInternos:
     def __init__(self, master, usuario):
         self.janela = master
@@ -28,18 +29,18 @@ class TelaInternos:
         self.btn_entradas = ttk.Button(self.frm, text="Registrar Entradas")
         self.btn_entradas.grid(column=0, row=5, pady=10, sticky=EW)
 
-        self.btn_hospitais = ttk.Button(self.frm, text="Gerenciar Hospitais")
-        self.btn_hospitais.grid(column=0, row=6, pady=10, sticky=EW)
+        self.btn_perfil = ttk.Button(self.frm, text="Gerenciar meu perfil")
+        self.btn_perfil.grid(column=0, row=6, pady=10, sticky=EW)
         
 
       
         ttk.Button(self.frm, text="Sair", command=self.janela.destroy).grid(column=0, row=7, pady=20)
 
-    
-    def configurar_navegacao(self, comando_func, comando_pac, comando_prof, comando_ent, comando_hosp):
+
+    def configurar_navegacao(self, comando_func, comando_pac, comando_prof, comando_ent, comando_perfil):
        
         self.btn_funcionarios.config(command=comando_func)
         self.btn_pacientes.config(command=comando_pac)
         self.btn_profissionais.config(command=comando_prof)
         self.btn_entradas.config(command=comando_ent)
-        self.btn_hospitais.config(command=comando_hosp)
+        self.btn_perfil.config(command=comando_perfil)

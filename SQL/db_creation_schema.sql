@@ -124,6 +124,11 @@ CREATE TABLE MEDICO_ESPEC (
                               ID_SPEC SERIAL REFERENCES ESPECIALIDADE,
                               PRIMARY KEY (CRM_MED, ID_SPEC)
 );
+-- Adiciona a coluna para guardar a imagem (Binário)
+ALTER TABLE FUNCINARIO ADD COLUMN FOTO BYTEA;
+
+
+
 
 -- 1. A Função que faz o serviço sujo
 CREATE OR REPLACE FUNCTION FN_LIMPAR_DADOS_PACIENTE()
@@ -269,10 +274,10 @@ VALUES
 -- 3) FUNCIONARIOS
 -- ============================
 
-INSERT INTO FUNCINARIO (NOME, CPF, FUNC, SENHA)
+INSERT INTO FUNCINARIO (NOME, FUNC, SENHA, CPF)
 VALUES
-    ('Carlos Func', '00000000001' , 1, 'abc'),
-    ('João Func', '00000000002', 2, 'abc');
+    ('Carlos Func', 1, 'abc','00000000000'),
+    ('João Func', 2, 'abc','00000000001');
 
 -- ============================
 -- 4) MÉDICO, ENFERMEIRO, ESPECIALIDADE

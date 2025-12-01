@@ -25,19 +25,20 @@ class LoginController:
         perfil_input = self.view.get_tipo_usuario()
 
         if perfil_input == "FUNCIONARIO":
-            # seu fluxo de funcionário (mantive int como você tinha)
-            try:
-                autenticado = self.funcionario_dao.autenticar((login_input), senha_input)
-            except Exception as e:
-                autenticado = False
-                print(f"[LoginController] Erro autenticando funcionário: {e}")
+            # REMOVIDO: if not login_input.isdigit()... (Pois CPF tem traço ou ponto as vezes)
+            
+            # CORREÇÃO:
+            # Passamos o login_input direto (string), sem int().
+            # O DAO vai procurar esse CPF no banco e retornar a Matrícula numérica correta.
+            dados_usuario = self.funcionario_dao.autenticar(login_input, senha_input)
 
-            if autenticado:
-                messagebox.showinfo("Sucesso", "Funcionário logado")
+            if dados_usuario:
                 self.view.frm.destroy()
-                InternosController(self.view.janela, autenticado)
+                # Passa o dicionário com a MATRICULA REAL (ex: 1) para o menu
+                # Agora o "Gerenciar Perfil" vai usar o ID 1 e não o CPF gigante.
+                InternosController(self.view.janela, dados_usuario)
             else:
-                messagebox.showerror("Erro", "ID ou Senha inválidos.")
+                messagebox.showerror("Erro", "CPF ou Senha inválidos.")
 
         elif perfil_input == "PACIENTE":
             # tenta autenticar como paciente
