@@ -2,7 +2,7 @@ from tkinter import *
 from tkinter import ttk
 
 class TelaAdicionarFunc:
-    def __init__(self, root: Tk, funcoes: tuple):
+    def __init__(self, root: Tk, funcoes: tuple, hospitais: tuple):
         self.janela = root
         self.frm = ttk.Frame(self.janela, padding=20)
         self.frm.grid()
@@ -25,6 +25,11 @@ class TelaAdicionarFunc:
         self.func_selection: ttk.Combobox = ttk.Combobox(self.frm, width=28, state='readonly')
         self.func_selection['values'] = funcoes
         self.func_selection.grid(column=1, row=3)
+        
+        ttk.Label(self.frm, text="Hospital de Atuação:", width=30).grid(column=0, row=4)
+        self.hosp_selection = ttk.Combobox(self.frm, width=28, state='readonly')
+        self.hosp_selection['values'] = hospitais
+        self.hosp_selection.grid(column=1, row=4)
 
         self.confirm_button: ttk.Button = ttk.Button(self.frm, text="Confirmar")
         self.confirm_button.grid(column=0, row=4)
@@ -49,3 +54,6 @@ class TelaAdicionarFunc:
     
     def get_func_pass(self) -> str:
         return self.func_pass_field.get()
+    
+    def get_hosp_field(self) -> str: 
+        return self.hosp_selection.get()

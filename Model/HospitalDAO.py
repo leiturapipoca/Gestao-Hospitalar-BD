@@ -31,7 +31,26 @@ def num_of_docs_in_hosp(cnes: str, connection: Any) -> int:
     rows = cursor.fetchall()
     return rows[0][0]
 
-
+def get_hospitais_para_combobox(connection: Any) -> list[str]:
+    """
+    Retorna uma lista de strings formatadas: 'Nome do Hospital (CNES)'
+    Ex: ['Hospital Central (0000001)', 'Hospital Municipal (0000002)']
+    """
+    try:
+        cursor = connection.cursor()
+        cursor.execute("SELECT NOME, CNES FROM HOSPITAL")
+        rows = cursor.fetchall()
+        
+        lista_formatada = []
+        for row in rows:
+            # row[0] é Nome, row[1] é CNES
+            lista_formatada.append(f"{row[0]} ({row[1]})")
+            
+        return lista_formatada
+    except Exception as e:
+        print(f"Erro ao buscar hospitais: {e}")
+        return []
+    
 def num_of_enf_in_hosp(cnes: str, connection: Any) -> int:
     """conta o número de enfermeiros vinculados a um dado hospital"""
 

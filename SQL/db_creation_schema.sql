@@ -124,16 +124,11 @@ CREATE TABLE MEDICO_ESPEC (
                               ID_SPEC SERIAL REFERENCES ESPECIALIDADE,
                               PRIMARY KEY (CRM_MED, ID_SPEC)
 );
-                MATRICULA SERIAL PRIMARY KEY,
-                            CPF CHAR(11) UNIQUE,
-                            NOME TEXT NOT NULL,
-                            FUNC SERIAL NOT NULL,
-                            SENHA TEXT NOT NULL,
-                            FOREIGN KEY (FUNC) REFERENCES FUNCAO
+
 
 CREATE VIEW FUNC_COMPLETO AS (
-    SELECT FUNCINARIO.CPF, FUNCINARIO.NOME, FUNCINARIO.MATRICULA, FUNCAO.NOME AS F_NOME FROM FUNCINARIO 
-    JOIN FUNCAO ON FUNCAO.ID = FUNCINARIO.FUNC);
+                             SELECT FUNCINARIO.CPF, FUNCINARIO.NOME, FUNCINARIO.MATRICULA, FUNCAO.NOME AS F_NOME FROM FUNCINARIO
+                                                                                                                          JOIN FUNCAO ON FUNCAO.ID = FUNCINARIO.FUNC);
 
 -- Adiciona a coluna para guardar a imagem (Binário)
 ALTER TABLE FUNCINARIO ADD COLUMN FOTO BYTEA;
@@ -274,7 +269,11 @@ VALUES ('Admin 1'), ('Admin 2');
 
 INSERT INTO HOSPITAL (CNES, NOME, ADM)
 VALUES
-    ('0000001', 'Hospital Central', 1);
+    ('0000001', 'Hospital Central', 1),
+    ('0000002', 'Hospital Norte', 1),
+    ('0000003', 'Hospital Sul', 1),
+    ('0000004', 'Hospital Leste', 1),
+    ('0000005', 'Hospital Oeste', 1);
 
 INSERT INTO SALA (NUMERO, HOSPITAL)
 VALUES

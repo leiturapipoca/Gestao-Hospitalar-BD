@@ -6,6 +6,7 @@ from View.TelaConsultarFunc import TelaConsultarFunc
 from View.TelaRemoverFunc import TelaRemoverFunc
 from Model.FuncaoDAO import FuncaoDao
 from Model.FuncionarioDAO import FuncionarioDAO
+import Model.HospitalDAO as HospitalDAO 
 from tkinter import filedialog
 import logging
 
@@ -100,7 +101,8 @@ class GerenciarFuncsController:
         logging.info("usuário selecionou: adicionar funcionário")
         self.view.frm.destroy()
         funcoes = tuple(self.funcao_dao.get_all_funcoes())
-        self.view = TelaAdicionarFunc(self.root, funcoes)
+        hospitais = tuple(HospitalDAO.get_hospitais_para_combobox(self.funcionario_dao.connection))
+        self.view = TelaAdicionarFunc(self.root, funcoes, hospitais)
         self.config_tela_adicionar_funcs(self.view)
 
     def baixar_foto_funcionario(self):
@@ -142,43 +144,37 @@ class GerenciarFuncsController:
 
 
     def adicionar_func(self):
-        # 1. Pega os dados da View
-        if not isinstance(self.view, TelaAdicionarFunc):
-            logging.warning("botão de remover func foi pressionado sem que se estivesse na TelaRemoverFunc")
-            self.select_gerenciar_func()
-        else:
-            new_func_name = self.view.get_name_field()
-            new_func_cpf = self.view.get_cpf_field()
-            new_func_pass = self.view.get_func_pass()
-        
-            # Pega o valor do Combobox (Ex: "3 Diretor" ou "3 - Diretor")
-            cargo_bruto = self.view.get_func_field() 
+        # Pega os dados
+        nome = self.view.get_name_field()
+        cpf = self.view.get_cpf_field()
+        senha = self.view.get_func_pass()
+        cargo_str = self.view.get_func_field()
+        hospital_str = self.view.get_hosp_field() # Ex: "Hospital Central (0000001)"
 
-            # Validação simples
-            if not new_func_name or not new_func_cpf or not new_func_pass or not cargo_bruto:
-                messagebox.showwarning("Aviso", "Preencha todos os campos obrigatórios.")
-                return
+        if not nome or not cpf or not senha or not cargo_str or not hospital_str:
+            messagebox.showwarning("Aviso", "Preencha todos os campos!")
+            return
 
-            # --- CORREÇÃO DO ERRO DE SINTAXE ---
-            try:
-                # Pega apenas a primeira parte da string (o número)
-                # Ex: "3 Diretor".split() -> ['3', 'Diretor'] -> Pega o '3' -> Converte para int
-                cargo_id = int(cargo_bruto.split()[0])
-            except (IndexError, ValueError):
-                messagebox.showerror("Erro", "Formato de cargo inválido. Selecione uma opção válida.")
-                return
-
-        # 2. Chama o DAO passando o ID limpo
-        # Note que o DAO retorna DOIS valores agora (sucesso, mensagem)
-        sucesso, mensagem = self.funcionario_dao.add_funcionario(new_func_name, new_func_cpf, cargo_id, new_func_pass)
-
-        # 3. Mostra o resultado na tela
-        if sucesso:
-            messagebox.showinfo("Sucesso", mensagem)
-            # Limpar campos se quiser
+        try:
+            # Extrai o ID do Cargo "3 Diretor" -> 3
+            cargo_id = int(cargo_str.split()[0])
             
+            # Extrai o CNES do Hospital "Nome (0000001)" -> "0000001"
+            # Pega o que está entre parênteses
+            cnes = hospital_str.split('(')[-1].replace(')', '')
+            
+        except Exception:
+            messagebox.showerror("Erro", "Erro ao processar cargo ou hospital selecionado.")
+            return
+
+        # Chama o DAO atualizado (passando o CNES agora)
+        sucesso, msg = self.funcionario_dao.add_funcionario(nome, cpf, cargo_id, senha, cnes)
+
+        if sucesso:
+            messagebox.showinfo("Sucesso", msg)
+            self.voltar()
         else:
-            messagebox.showerror("Erro de Cadastro", mensagem)
+            messagebox.showerror("Erro", msg)
 
 
     def select_remover_func(self):

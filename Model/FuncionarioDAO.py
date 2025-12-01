@@ -42,19 +42,43 @@ class FuncionarioDAO:
             return None
             
 
-    def add_funcionario(self, nome: str, cpf: str, cargo_id: int, senha: str):
+    def add_funcionario(self, nome: str, cpf: str, cargo_id: int, senha: str, cnes_hospital: str):
+        """
+        Cadastra o funcionário e cria o vínculo com o hospital.
+        """
         try:
             cursor = self.connection.cursor()
-            cursor.execute(f"""
-                           INSERT INTO FUNCINARIO (NOME,CPF, FUNC, SENHA)
-                           VALUES ('{nome}','{cpf}', {cargo_id}, '{senha}');
-                       """)
+            
+            # 1. Inserir Funcionário e recuperar a Matrícula gerada
+            sql_func = """
+                INSERT INTO FUNCINARIO (NOME, CPF, FUNC, SENHA)
+                VALUES (%s, %s, %s, %s)
+                RETURNING MATRICULA
+            """
+            cursor.execute(sql_func, (nome, cpf, cargo_id, senha))
+            
+            # Pega o ID gerado (ex: 5)
+            nova_matricula = cursor.fetchone()[0]
+            
+            # 2. Criar o vínculo na tabela FUNC_HOSP
+            if cnes_hospital:
+                sql_vinculo = """
+                    INSERT INTO FUNC_HOSP (CNES_HOSP, MATR_FUNC)
+                    VALUES (%s, %s)
+                """
+                cursor.execute(sql_vinculo, (cnes_hospital, nova_matricula))
+            
             self.connection.commit()
-            return True, "Funcionário cadastrado com sucesso!"
+            cursor.close()
+            return True, "Funcionário cadastrado e vinculado com sucesso!"
 
         except psycopg2.errors.UniqueViolation:
-            self.connection.rollback() # Cancela a tentativa
-            return False, f"Erro: O CPF {cpf} já está cadastrado no sistema."
+            self.connection.rollback()
+            return False, f"Erro: O CPF {cpf} já está cadastrado."
+        except Exception as e:
+            self.connection.rollback()
+            print(f"Erro ao cadastrar: {e}")
+            return False, f"Erro inesperado: {e}"
         
 
     def get_func_by_cpf(self, cpf: str):

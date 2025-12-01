@@ -12,9 +12,13 @@ class EntradasController:
         self.view = TelaEntradas(root)
         self.dao = EntradaDAO()
         
+
+        
         # 'usuario' deve ser o dicionário: {'matricula': 1, 'nome': 'Carlos'}
         self.usuario = usuario 
         self.cnes_vinculado = None 
+
+        print(f"[DEBUG] EntradasController iniciou com usuário: {self.usuario}")
         
         self.preencher_hospital_automatico()
 
