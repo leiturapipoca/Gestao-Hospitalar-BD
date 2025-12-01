@@ -1,6 +1,9 @@
 import psycopg2
+import logging
 
 from exemplos_python.test_queries import connect_to_database 
+
+logger = logging.getLogger("FuncionarioDAO")
 
 class FuncionarioDAO:
     def __init__(self):
@@ -36,9 +39,19 @@ class FuncionarioDAO:
     
 
     def remove_funcionario(self, cpf: str):
+        logger.info("entrou-se na query de remove funcionario")
         cursor = self.connection.cursor()
+        cursor.execute(f"""
+                       SELECT MATRICULA FROM FUNCINARIO WHERE CPF = '{cpf}';""")
+        func_id = cursor.fetchall()[0][0]
+        logger.info(f"matricula do funcionário a ser removido: {func_id}")
+        logger.info(f"tipo da variável matrícula: {type(func_id)}")
+        cursor.execute(f"""
+             DELETE FROM FUNC_HOSP WHERE MATR_FUNC = {func_id};
+        """)
         cursor.execute(f"""DELETE FROM FUNCINARIO WHERE CPF = '{cpf}';""")
         self.connection.commit()
+        logger.info(f"concluiu-se a query de remover funcionario: {type(func_id)}")
 
 
     def fechar_conexao(self):

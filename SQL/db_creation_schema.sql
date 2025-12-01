@@ -269,10 +269,10 @@ VALUES
 -- 3) FUNCIONARIOS
 -- ============================
 
-INSERT INTO FUNCINARIO (NOME, FUNC, SENHA)
+INSERT INTO FUNCINARIO (NOME, CPF, FUNC, SENHA)
 VALUES
-    ('Carlos Func', 1, 'abc'),
-    ('João Func', 2, 'abc');
+    ('Carlos Func', '00000000001' , 1, 'abc'),
+    ('João Func', '00000000002', 2, 'abc');
 
 -- ============================
 -- 4) MÉDICO, ENFERMEIRO, ESPECIALIDADE
