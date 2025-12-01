@@ -51,6 +51,7 @@ CREATE TABLE SALA (
 
 CREATE TABLE FUNCINARIO (
                             MATRICULA SERIAL PRIMARY KEY,
+                            CPF CHAR(11) UNIQUE,
                             NOME TEXT NOT NULL,
                             FUNC SERIAL NOT NULL,
                             SENHA TEXT NOT NULL,
