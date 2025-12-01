@@ -30,7 +30,7 @@ class ProfissionalDAO:
             print(f"Erro ao autenticar: {e}")
             return False
 
-    def add_profissional(self, cpf: str, nome: str, tipo: str, crm: str = None, codigo: int = None) -> tuple[bool, str]:
+    def add_profissional(self, cpf: str, nome: str, tipo: str, crm: str | None = None, codigo: int | None = None) -> tuple[bool, str]:
         """
         Adiciona um novo profissional de saúde ao sistema.
         
