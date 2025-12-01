@@ -79,3 +79,64 @@
   - Verify user session data is preserved
   - Verify all actions are logged
   - Check that no UI errors occur during navigation
+
+## Phase 2: Database Integration
+
+- [x] 9. Implement add_profissional method in ProfissionalDAO
+  - Add method signature: `add_profissional(self, cpf: str, nome: str, tipo: str, crm: str = None, codigo: int = None) -> tuple[bool, str]`
+  - Insert record into MEDICO table if tipo is 'M' (using CRM as primary key)
+  - Insert record into ENFERMEIRO table if tipo is 'E' (CODIGO is auto-generated SERIAL)
+  - Insert record into PROFISSIONAL_SAUDE table with CPF, NOME, TIPO, and appropriate foreign key (CRM_MED or COD_ENF)
+  - Handle UniqueViolation exception for duplicate CPF
+  - Return tuple (success: bool, message: str) similar to FuncionarioDAO.add_funcionario
+  - Use parameterized queries to prevent SQL injection
+  - Commit transaction on success, rollback on error
+  - _Requirements: 2.3, 2.4, 2.5, 2.6_
+
+- [x] 10. Implement remove_profissional method in ProfissionalDAO
+  - Add method signature: `remove_profissional(self, cpf: str) -> tuple[bool, str]`
+  - Check if professional exists before attempting deletion
+  - Delete from PROF_PROC table (cascading relationship)
+  - Delete from PROFISSIONAL_SAUDE table (cascading will handle MEDICO/ENFERMEIRO due to ON DELETE SET NULL)
+  - Handle case where CPF does not exist
+  - Return tuple (success: bool, message: str)
+  - Use parameterized queries to prevent SQL injection
+  - Commit transaction on success, rollback on error
+  - Log all operations
+  - _Requirements: 3.3, 3.4, 3.5_
+
+- [x] 11. Implement consultar_profissional method in ProfissionalDAO
+  - Add method signature: `consultar_profissional(self, cpf: str) -> dict | None`
+  - Query PROFISSIONAL_SAUDE table by CPF
+  - Return dictionary with keys: 'cpf', 'nome', 'tipo', 'crm' (if tipo='M'), 'codigo' (if tipo='E')
+  - Return None if professional not found
+  - Use parameterized queries to prevent SQL injection
+  - Handle database errors gracefully
+  - Log query operations
+  - _Requirements: 4.3, 4.4, 4.5, 4.6_
+
+- [x] 12. Update GerenciarProfsController to use ProfissionalDAO
+  - Import ProfissionalDAO in GerenciarProfsController
+  - Initialize ProfissionalDAO instance in __init__ method
+  - Update handle_adicionar_prof to call DAO.add_profissional with form data
+  - Validate form data before calling DAO (CPF length, nome not empty, CRM/CODIGO based on tipo)
+  - Display success or error messages using view methods
+  - Update handle_remover_prof to call DAO.remove_profissional
+  - Display success or error messages using view methods
+  - Update handle_consultar_prof to call DAO.consultar_profissional
+  - Display results or error messages using view methods
+  - Add proper error handling with try-except blocks
+  - _Requirements: 2.2, 2.3, 3.2, 3.3, 4.2, 4.3, 6.1, 6.2_
+
+- [ ] 13. Final checkpoint - Integration testing
+  - Ensure all tests pass, ask the user if questions arise
+  - Test adding a new doctor (tipo='M') with valid CRM
+  - Test adding a new nurse (tipo='E') with valid CODIGO
+  - Test adding professional with duplicate CPF (should show error)
+  - Test adding professional with missing required fields (should show error)
+  - Test removing an existing professional
+  - Test removing non-existent professional (should show error)
+  - Test querying an existing professional (verify all data displays correctly)
+  - Test querying non-existent professional (should show error message)
+  - Verify all database operations are logged
+  - Verify database connections are properly closed
