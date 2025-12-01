@@ -121,6 +121,33 @@ def get_name_by_cnes(cnes: str, connection: Any) -> str:
         print(f"Erro ao buscar nome do hospital: {e}")
         return None
     
+def get_hospitais_vinculados(matricula: int, connection: Any) -> list[str]:
+    """
+    Retorna uma lista com os nomes dos hospitais vinculados a um funcionário.
+    Ex: ['Hospital Central', 'Hospital Municipal']
+    """
+    lista_hospitais = []
+    try:
+        cursor = connection.cursor()
+        
+        # JOIN entre FUNC_HOSP e HOSPITAL para pegar o NOME
+        sql = """
+            SELECT H.NOME 
+            FROM HOSPITAL H
+            JOIN FUNC_HOSP FH ON H.CNES = FH.CNES_HOSP
+            WHERE FH.MATR_FUNC = %s
+        """
+        
+        cursor.execute(sql, (matricula,))
+        rows = cursor.fetchall()
+        
+        for row in rows:
+            lista_hospitais.append(row[0]) # Adiciona o nome na lista
+            
+    except Exception as e:
+        print(f"Erro ao buscar hospitais vinculados: {e}")
+        
+    return lista_hospitais
 
 def run_hosp_model_tests():
     """roda testes verificando o correto funcionamento das queries presentes no HospitalDAO"""

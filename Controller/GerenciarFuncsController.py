@@ -55,14 +55,20 @@ class GerenciarFuncsController:
             messagebox.showwarning("Aviso", "Preencha todos os campos obrigatórios.")
             return
          else:
-            try: dados = self.funcionario_dao.get_func_by_cpf(acha_cpf)
+            try: 
+                dados = self.funcionario_dao.get_func_by_cpf(acha_cpf)
+                
+            
             except ValueError:
                 logging.warning("não há correspondência ao cpf informado no banco de dados")
                 messagebox.showwarning("Aviso", "o cpf informado não foi encontrado")
+            matricula_func = dados['matricula']
+            lista_hospitais = HospitalDAO.get_hospitais_vinculados(matricula_func, self.funcionario_dao.connection)
             self.view.cpf = dados['cpf']
             self.view.nome = dados['nome']
             self.view.funcao = dados['funcao_nome']
             self.view.matricula = dados['matricula']
+            self.view.hospitais_func = lista_hospitais
             self.view.frm.destroy()
             self.view.render_view()
             self.config_tela_consultar_funcs(self.view)
@@ -198,7 +204,7 @@ class GerenciarFuncsController:
     def select_consultar_func(self):
         logging.info("usuário selecionou: consultar funcionário")
         self.view.frm.destroy()
-        self.view = TelaConsultarFunc(self.root, "nome maluco", "12341234", "função legal", "13412341234", ["hosp1", "hosp2", "hosp3", "hosp4"])
+        self.view = TelaConsultarFunc(self.root, " ", " ", " ", " ", [])
         self.config_tela_consultar_funcs(self.view)
 
 
