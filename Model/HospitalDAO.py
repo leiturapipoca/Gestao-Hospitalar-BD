@@ -149,6 +149,26 @@ def get_hospitais_vinculados(matricula: int, connection: Any) -> list[str]:
         
     return lista_hospitais
 
+def get_salas_livres_by_cnes(cnes: str, connection: Any) -> tuple:
+    """
+    Busca todas as salas com LIVRE = TRUE de um hospital específico.
+    Retorna uma lista de strings: ['Sala 101', 'Sala 102']
+    """
+    lista_salas = []
+    try:
+        cursor = connection.cursor()
+        # Seleciona apenas o número das salas livres daquele hospital
+        sql = "SELECT NUMERO FROM SALA WHERE HOSPITAL = %s AND LIVRE = TRUE ORDER BY NUMERO"
+        cursor.execute(sql, (cnes,))
+        rows = cursor.fetchall()
+        
+        for row in rows:
+            lista_salas.append(f"Sala {row[0]}") # Ex: "Sala 101"
+            
+    except Exception as e:
+        print(f"Erro ao buscar salas livres: {e}")
+        
+    return tuple(lista_salas)
 def run_hosp_model_tests():
     """roda testes verificando o correto funcionamento das queries presentes no HospitalDAO"""
     connection = databaseUtils.connect_to_database() 

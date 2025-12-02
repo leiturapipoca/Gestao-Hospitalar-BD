@@ -104,6 +104,7 @@ CREATE TABLE PROCEDIMENTO (
                               CODIGO SERIAL PRIMARY KEY,
                               ID_TIPO SERIAL REFERENCES TIPO_PROC,
                               COD_ENTR SERIAL REFERENCES ENTRADA
+
 );
 
 -- TABLAS RELACIONAIS
@@ -132,6 +133,7 @@ CREATE VIEW FUNC_COMPLETO AS (
 
 -- Adiciona a coluna para guardar a imagem (Binário)
 ALTER TABLE FUNCINARIO ADD COLUMN FOTO BYTEA;
+ALTER TABLE PROCEDIMENTO ADD COLUMN ID_SALA INT REFERENCES SALA(ID);
 
 
 
@@ -178,10 +180,11 @@ CREATE TRIGGER TRG_BEFORE_DELETE_PACIENTE
 EXECUTE FUNCTION FN_LIMPAR_DADOS_PACIENTE();
 
 CREATE OR REPLACE PROCEDURE PR_REGISTRAR_PROCEDIMENTO_COMPLETO(
-    p_cod_entrada INT,          -- ID da Entrada (que veio da tela anterior)
-    p_crm_medico CHAR(9),       -- CRM digitado
-    p_nome_procedimento TEXT,   -- Escolhido no Combobox
-    p_nome_doenca TEXT          -- Digitado no campo de texto
+    p_cod_entrada INT,
+    p_crm_medico CHAR(9),
+    p_nome_procedimento TEXT,
+    p_nome_doenca TEXT,
+    p_numero_sala INT -- NOVO PARÂMETRO
 )
     LANGUAGE plpgsql
 AS $$
@@ -191,50 +194,61 @@ DECLARE
     v_id_tipo_proc INT;
     v_novo_cod_proc INT;
     v_doenca_caps TEXT;
+    v_cnes_hospital CHAR(7);
+    v_id_sala INT;
 BEGIN
-    -- 1. Descobrir quem é o Paciente através da Entrada
-    SELECT CPF_PAC INTO v_cpf_paciente
+    -- 1. Descobrir quem é o Paciente e qual o Hospital da Entrada
+    SELECT CPF_PAC, CNES_HOSP INTO v_cpf_paciente, v_cnes_hospital
     FROM ENTRADA WHERE CODIGO = p_cod_entrada;
 
     IF v_cpf_paciente IS NULL THEN
         RAISE EXCEPTION 'Entrada % não encontrada.', p_cod_entrada;
     END IF;
 
-    -- 2. TRATAMENTO DA DOENÇA (Lógica solicitada)
-    -- Transforma em MAIÚSCULA
-    v_doenca_caps := UPPER(p_nome_doenca);
+    -- 2. Validar Sala (NOVO)
+    -- Verifica se existe uma sala com esse número neste hospital
+    SELECT ID INTO v_id_sala
+    FROM SALA
+    WHERE NUMERO = p_numero_sala AND HOSPITAL = v_cnes_hospital;
 
-    -- Verifica se o paciente já tem essa doença registrada
-    IF NOT EXISTS (SELECT 1 FROM DOENCA WHERE DESCRICAO = v_doenca_caps AND PORTADOR = v_cpf_paciente) THEN
-        -- Se não tem, insere
-        INSERT INTO DOENCA (DESCRICAO, PORTADOR)
-        VALUES (v_doenca_caps, v_cpf_paciente);
+    IF v_id_sala IS NULL THEN
+        RAISE EXCEPTION 'Sala número % não existe no hospital da entrada (%s).', p_numero_sala, v_cnes_hospital;
     END IF;
 
-    -- 3. Descobrir ID do Médico pelo CRM
-    SELECT CPF INTO v_cpf_medico
-    FROM PROFISSIONAL_SAUDE WHERE CRM_MED = p_crm_medico;
+    -- Opcional: Verificar se a sala está livre (se tiver a coluna LIVRE)
+     IF EXISTS (SELECT 1 FROM SALA WHERE ID = v_id_sala AND LIVRE = FALSE) THEN
+        RAISE EXCEPTION 'Sala % está ocupada.', p_numero_sala;
+     END IF;
 
+    -- Opcional: Marcar sala como ocupada
+     UPDATE SALA SET LIVRE = FALSE WHERE ID = v_id_sala;
+
+    -- 3. Tratamento da Doença
+    v_doenca_caps := UPPER(p_nome_doenca);
+    IF NOT EXISTS (SELECT 1 FROM DOENCA WHERE DESCRICAO = v_doenca_caps AND PORTADOR = v_cpf_paciente) THEN
+        INSERT INTO DOENCA (DESCRICAO, PORTADOR) VALUES (v_doenca_caps, v_cpf_paciente);
+    END IF;
+
+    -- 4. Validar Médico
+    SELECT CPF INTO v_cpf_medico FROM PROFISSIONAL_SAUDE WHERE CRM_MED = p_crm_medico;
     IF v_cpf_medico IS NULL THEN
         RAISE EXCEPTION 'Médico com CRM % não encontrado.', p_crm_medico;
     END IF;
 
-    -- 4. Descobrir ID do Tipo de Procedimento
-    SELECT ID INTO v_id_tipo_proc
-    FROM TIPO_PROC WHERE NOME = p_nome_procedimento;
-
+    -- 5. Validar Procedimento
+    SELECT ID INTO v_id_tipo_proc FROM TIPO_PROC WHERE NOME = p_nome_procedimento;
     IF v_id_tipo_proc IS NULL THEN
         RAISE EXCEPTION 'Procedimento inválido.';
     END IF;
 
-    -- 5. Inserir o Procedimento
+    -- 6. Inserir Procedimento
+    -- Se você adicionou coluna ID_SALA em PROCEDIMENTO, adicione aqui no INSERT
     INSERT INTO PROCEDIMENTO (ID_TIPO, COD_ENTR)
     VALUES (v_id_tipo_proc, p_cod_entrada)
     RETURNING CODIGO INTO v_novo_cod_proc;
 
-    -- 6. Vincular Médico ao Procedimento
-    INSERT INTO PROF_PROC (COD_PROC, COD_PROF)
-    VALUES (v_novo_cod_proc, v_cpf_medico);
+    -- 7. Vincular Médico
+    INSERT INTO PROF_PROC (COD_PROC, COD_PROF) VALUES (v_novo_cod_proc, v_cpf_medico);
 
 END;
 $$;
@@ -254,8 +268,11 @@ VALUES
 
 INSERT INTO DOENCA (DESCRICAO, PORTADOR)
 VALUES
-    ('Gripe', '00000000001'),
-    ('Asma', '00000000002');
+    ('GRIPE', '00000000001'),
+    ('HEMATOMAS', '00000000001'),
+    ('POLIDACTILIA', '00000000001'),
+    ('CICATRIZES', '00000000001'),
+    ('ASMA', '00000000002');
 
 INSERT INTO FUNCAO (NOME)
 VALUES ('Recepcionista'), ('Secretário'), ('Diretor'), ('Superintendente'), ('Auditor');
@@ -275,10 +292,38 @@ VALUES
     ('0000004', 'Hospital Leste', 1),
     ('0000005', 'Hospital Oeste', 1);
 
-INSERT INTO SALA (NUMERO, HOSPITAL)
+INSERT INTO SALA (NUMERO, HOSPITAL, LIVRE)
 VALUES
-    (101, '0000001'),
-    (102, '0000001');
+    (101, '0000001', TRUE),
+    (102, '0000001',TRUE),
+    (103,'0000001',FALSE),
+    (104,'0000001',TRUE),
+    (105,'0000001',TRUE),
+
+    (106, '0000002',TRUE),
+    (107, '0000002',TRUE),
+    (108,'0000002',TRUE),
+    (109,'0000002',TRUE),
+    (110,'0000002',TRUE),
+
+    (111, '0000003',TRUE),
+    (112, '0000003',TRUE),
+    (113,'0000003',TRUE),
+    (114,'0000003',TRUE),
+    (115,'0000003',TRUE),
+
+    (116, '0000004',TRUE),
+    (117, '0000004',TRUE),
+    (118,'0000004',TRUE),
+    (119,'0000004',TRUE),
+    (120,'0000004',TRUE),
+
+    (121, '0000005',TRUE),
+    (122, '0000005',TRUE),
+    (123,'0000005',TRUE),
+    (124,'0000005',TRUE),
+    (125,'0000005',TRUE);
+
 
 -- ============================
 -- 3) FUNCIONARIOS
@@ -294,13 +339,13 @@ VALUES
 -- ============================
 
 INSERT INTO MEDICO (CRM)
-VALUES ('CRM000001');
+VALUES ('CRM000001'),('CRM000002'),('CRM000003'),('CRM000004'),('CRM000005'), ('CRM000006') ;
 
 INSERT INTO ENFERMEIRO (CODIGO)
 VALUES (DEFAULT);  -- gera automaticamente (1)
 
 INSERT INTO ESPECIALIDADE (NOME)
-VALUES ('Cardiologia'), ('Pediatria');
+VALUES ('Cardiologia'), ('Pediatria'), ('Odontologia'), ('Radioterpia'), ('Oftalmologia');
 
 -- ============================
 -- 5) PROFISSIONAL DE SAÚDE
@@ -308,13 +353,23 @@ VALUES ('Cardiologia'), ('Pediatria');
 
 INSERT INTO PROFISSIONAL_SAUDE (CPF, NOME, TIPO, CRM_MED, COD_ENF)
 VALUES
-    ('00000000011', 'Dr. Fulano', 'M', 'CRM000001', NULL),
-    ('00000000012', 'Enf. Beltrano', 'E', NULL, 1);
+    ('00000000011', 'Dra. Maristela', 'M', 'CRM000001', NULL),
+    ('00000000012', 'Dr. LeBron', 'M', 'CRM000002', NULL),
+    ('00000000013', 'Dr. Shaquille', 'M', 'CRM000003', NULL),
+    ('00000000014', 'Dr. Durant', 'M', 'CRM000004', NULL),
+    ('00000000015', 'Dr. Bonifácio', 'M', 'CRM000005', NULL),
+    ('00000000016', 'Dr. Karl-Anthony', 'M', 'CRM000006', NULL),
+     ('00000000031', 'Enf. Beltrano', 'E', NULL, 1);
 
 INSERT INTO PROF_SAUDE_HOSP (CPF_PROF, CNES_HOSP)
 VALUES
     ('00000000011', '0000001'),
-    ('00000000012', '0000001');
+    ('00000000012', '0000002'),
+    ('00000000013', '0000003'),
+    ('00000000014', '0000004'),
+    ('00000000015', '0000005'),
+    ('00000000016', '0000001');
+
 
 -- ============================
 -- 6) TIPOS DE PROCEDIMENTOS + ENTRADA
@@ -375,5 +430,11 @@ VALUES
 INSERT INTO MEDICO_ESPEC (CRM_MED, ID_SPEC)
 VALUES
     ('CRM000001', 1),
-    ('CRM000001', 2);
+    ('CRM000001', 2),
+    ('CRM000002',3),
+    ('CRM000003',4),
+    ('CRM000004',5),
+    ('CRM000002',2);
 
+
+SELECT * FROM SALA;

@@ -3,58 +3,72 @@ from View.TelaProcedimentos import TelaProcedimentos
 from Model.ProcedimentosDAO import ProcedimentosDAO
 
 class ProcedimentosController:
-    def __init__(self, root, usuario, id_entrada):
-        """
-        Recebe:
-        - usuario: Dicionário do funcionário logado (para voltar ao menu depois)
-        - id_entrada: O ID da entrada recém-criada (Foreign Key para o procedimento)
-        """
+    # --- ADICIONADO 'cnes_hospital=None' no final ---
+    def __init__(self, root, usuario, id_entrada, numero_sala=None, cnes_hospital=None):
         self.usuario = usuario
         self.id_entrada = id_entrada 
+        self.numero_sala = numero_sala
+        self.cnes_hospital = cnes_hospital # Guarda o hospital
         
         self.dao = ProcedimentosDAO()
         
-        # 1. Busca os tipos reais no banco para preencher o Combobox
-        # (Nada de dados 'hardcoded' como 'batata')
+        # Busca tipos
         lista_tipos = self.dao.get_tipos_procedimento()
         
-        # 2. Cria a View passando a lista carregada
-        self.view = TelaProcedimentos(root, lista_tipos)
+        # --- FILTRA OS MÉDICOS PELO HOSPITAL ---
+        # Passamos o CNES que veio da tela anterior
+        lista_medicos = self.dao.get_medicos_disponiveis(self.cnes_hospital)
         
-        # 3. Configura os botões
+        # Cria a View
+        self.view = TelaProcedimentos(root, lista_tipos, lista_medicos)
+        
+        if self.numero_sala and hasattr(self.view, 'preencher_sala'):
+            self.view.preencher_sala(self.numero_sala)
+
         self.view.set_action_salvar(self.salvar_procedimento)
         self.view.set_action_voltar(self.voltar_menu)
 
     def salvar_procedimento(self):
-        # Coleta os dados da tela
         doenca = self.view.get_doenca()
-        crm_medico = self.view.get_cpf_medico() # O label diz CPF, mas o SQL pede CRM
+        # Pega o CRM selecionado "12345 - Dr..."
+        medico_str = self.view.get_cpf_medico() 
         tipo_proc = self.view.get_procedimento()
         
-        # Validação Simples
-        if not doenca or not crm_medico or not tipo_proc:
-            messagebox.showwarning("Aviso", "Preencha Doença, CRM do Médico e Tipo de Procedimento.")
+        # Pega a sala (da tela ou da memória)
+        sala_final = self.numero_sala
+        if hasattr(self.view, 'get_sala') and self.view.get_sala():
+             try:
+                 s = self.view.get_sala()
+                 if s.isdigit(): sala_final = int(s)
+             except: pass
+
+        if not doenca or not medico_str or not tipo_proc:
+            messagebox.showwarning("Aviso", "Preencha todos os campos.")
             return
 
-        # Chama o DAO que executa a PROCEDURE COMPLEXA no banco
-        # Essa procedure insere Procedimento, Doença (se não existir) e Vínculo com Médico
+        try:
+            # Extrai só o CRM da string do combobox
+            crm_puro = medico_str.split(' - ')[0].strip()
+        except:
+            messagebox.showerror("Erro", "Médico inválido.")
+            return
+
+        # Chama DAO
         sucesso, mensagem = self.dao.registrar_procedimento_completo(
             self.id_entrada, 
-            crm_medico, 
+            crm_puro, 
             tipo_proc, 
-            doenca
+            doenca,
+            int(sala_final) if sala_final else 0
         )
 
         if sucesso:
-            messagebox.showinfo("Sucesso", "Procedimento registrado! Paciente admitido com sucesso.")
-            # Fim do fluxo: Volta para o menu principal
+            messagebox.showinfo("Sucesso", "Procedimento registrado!")
             self.voltar_menu()
         else:
-            # Mostra o erro específico do banco (ex: "Médico não trabalha neste hospital")
-            messagebox.showerror("Erro no Agendamento", mensagem)
+            messagebox.showerror("Erro", mensagem)
 
     def voltar_menu(self):
         from Controller.InternosController import InternosController
         self.view.frm.destroy()
-        # Volta para o menu principal devolvendo os dados do funcionário
         InternosController(self.view.janela, self.usuario)
