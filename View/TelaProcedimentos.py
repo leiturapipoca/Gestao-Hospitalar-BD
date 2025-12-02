@@ -54,3 +54,4 @@ class TelaProcedimentos:
     def preencher_sala(self, valor):
         self.campo_sala.delete(0, END)
         self.campo_sala.insert(0, valor)
+        self.campo_sala.config(state = 'readonly')

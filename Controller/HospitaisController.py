@@ -7,6 +7,7 @@ from View.TelaLiberarSala import TelaLiberarSala
 from Controller.InternosController import InternosController
 import logging
 from Model.HospitalDAO import hosps_and_gerentes
+from Controller.SalasController import SalasController
 
 class HospitaisController:
     def __init__(self, root: Tk, dados_usuario):
@@ -18,7 +19,7 @@ class HospitaisController:
     def config_tela_gerenciar_hosp(self, view: TelaHospital):
         view.set_action_return(self.voltar)
         view.set_action_hosps(self.selecionar_hosps)
-        view.set_action_salas(self.selecionar_salas)
+        view.set_action_salas(self.abrir_salas_controller)
 
     def config_tela_hosp_hosp(self, view: TelaHospHosp):
         view.set_action_return(self.voltar)
@@ -37,9 +38,15 @@ class HospitaisController:
         self.view = TelaHospHosp(self.root, hospitais)
         self.config_tela_hosp_hosp(self.view)
         
-    def selecionar_salas(self):
-        logging.info("selecionar_salas")
+    def abrir_salas_controller(self):
+        """
+        Delega a responsabilidade de gerenciar salas para o SalasController.
+        """
+        logging.info("Delegando para SalasController")
+        
+        # Destrói a tela atual de menu de hospitais
         self.view.frm.destroy()
-        self.view = TelaLiberarSala(self.root, [("sala1", "2"), ("sala2", "3")])
-        self.config_tela_liberar_salas(self.view)
+        
+        # Instancia o novo controller passando os dados do usuário (para ele saber qual hospital buscar)
+        SalasController(self.root, self.dados_usuario)
 
