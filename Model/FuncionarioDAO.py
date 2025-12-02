@@ -49,7 +49,7 @@ class FuncionarioDAO:
         try:
             cursor = self.connection.cursor()
             
-            # 1. Inserir Funcionário e recuperar a Matrícula gerada
+            # Inserir Funcionário e recuperar a Matrícula gerada
             sql_func = """
                 INSERT INTO FUNCINARIO (NOME, CPF, FUNC, SENHA)
                 VALUES (%s, %s, %s, %s)
@@ -57,10 +57,10 @@ class FuncionarioDAO:
             """
             cursor.execute(sql_func, (nome, cpf, cargo_id, senha))
             
-            # Pega o ID gerado (ex: 5)
+            # Pega o ID gerado
             nova_matricula = cursor.fetchone()[0]
             
-            # 2. Criar o vínculo na tabela FUNC_HOSP
+            # Criar o vínculo na tabela FUNC_HOSP
             if cnes_hospital:
                 sql_vinculo = """
                     INSERT INTO FUNC_HOSP (CNES_HOSP, MATR_FUNC)

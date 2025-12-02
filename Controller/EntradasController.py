@@ -54,13 +54,13 @@ class EntradasController:
         if id_entrada:
             self.view.frm.destroy()
             
-            # --- AQUI ESTÁ A MUDANÇA: Passamos o cnes_salvar também ---
+            # Cria novo procedimento
             ProcedimentosController(
                 self.view.janela, 
                 self.usuario, 
                 id_entrada, 
                 numero_sala, 
-                cnes_salvar # Novo parâmetro!
+                cnes_salvar 
             )
         else:
             messagebox.showerror("Erro", "Falha ao registrar entrada.")

@@ -107,7 +107,7 @@ CREATE TABLE PROCEDIMENTO (
 
 );
 
--- TABLAS RELACIONAIS
+
 CREATE TABLE FUNC_HOSP (
                            CNES_HOSP CHAR(7) REFERENCES HOSPITAL,
                            MATR_FUNC SERIAL REFERENCES FUNCINARIO,
@@ -131,19 +131,17 @@ CREATE VIEW FUNC_COMPLETO AS (
                              SELECT FUNCINARIO.CPF, FUNCINARIO.NOME, FUNCINARIO.MATRICULA, FUNCAO.NOME AS F_NOME FROM FUNCINARIO
                                                                                                                           JOIN FUNCAO ON FUNCAO.ID = FUNCINARIO.FUNC);
 
--- Adiciona a coluna para guardar a imagem (Binário)
+
 ALTER TABLE FUNCINARIO ADD COLUMN FOTO BYTEA;
 ALTER TABLE PROCEDIMENTO ADD COLUMN ID_SALA INT REFERENCES SALA(ID);
 
 
 
 
--- 1. A Função que faz o serviço sujo
 CREATE OR REPLACE FUNCTION FN_LIMPAR_DADOS_PACIENTE()
     RETURNS TRIGGER AS $$
 BEGIN
-    -- 1º: Apagar os vínculos de Médicos com Procedimentos (PROF_PROC)
-    -- Isso é o "bisneto". Se não apagar, não dá pra apagar o Procedimento.
+    
     DELETE FROM PROF_PROC
     WHERE COD_PROC IN (
         SELECT P.CODIGO
@@ -152,8 +150,7 @@ BEGIN
         WHERE E.CPF_PAC = OLD.CPF
     );
 
-    -- 2º: Apagar os Procedimentos (PROCEDIMENTO)
-    -- Esses são os "netos" (filhos da Entrada)
+   
     DELETE FROM PROCEDIMENTO
     WHERE COD_ENTR IN (
         SELECT CODIGO
@@ -161,15 +158,14 @@ BEGIN
         WHERE CPF_PAC = OLD.CPF
     );
 
-    -- 3º: Apagar as Entradas (ENTRADA)
-    -- Esses são os "filhos" diretos
+   
     DELETE FROM ENTRADA WHERE CPF_PAC = OLD.CPF;
 
-    -- 4º: Apagar Doenças e Telefones (Outros filhos)
+   
     DELETE FROM DOENCA WHERE PORTADOR = OLD.CPF;
     DELETE FROM TELEFONE WHERE PROPRIETARIO = OLD.CPF;
 
-    -- 5º: Retorna OLD para permitir que o Paciente finalmente seja apagado
+    
     RETURN OLD;
 END;
 $$ LANGUAGE plpgsql;
@@ -184,7 +180,7 @@ CREATE OR REPLACE PROCEDURE PR_REGISTRAR_PROCEDIMENTO_COMPLETO(
     p_crm_medico CHAR(9),
     p_nome_procedimento TEXT,
     p_nome_doenca TEXT,
-    p_numero_sala INT -- NOVO PARÂMETRO
+    p_numero_sala INT 
 )
     LANGUAGE plpgsql
 AS $$
@@ -197,7 +193,7 @@ DECLARE
     v_cnes_hospital CHAR(7);
     v_id_sala INT;
 BEGIN
-    -- 1. Descobrir quem é o Paciente e qual o Hospital da Entrada
+    
     SELECT CPF_PAC, CNES_HOSP INTO v_cpf_paciente, v_cnes_hospital
     FROM ENTRADA WHERE CODIGO = p_cod_entrada;
 
@@ -205,8 +201,7 @@ BEGIN
         RAISE EXCEPTION 'Entrada % não encontrada.', p_cod_entrada;
     END IF;
 
-    -- 2. Validar Sala (NOVO)
-    -- Verifica se existe uma sala com esse número neste hospital
+   
     SELECT ID INTO v_id_sala
     FROM SALA
     WHERE NUMERO = p_numero_sala AND HOSPITAL = v_cnes_hospital;
@@ -215,39 +210,38 @@ BEGIN
         RAISE EXCEPTION 'Sala número % não existe no hospital da entrada (%s).', p_numero_sala, v_cnes_hospital;
     END IF;
 
-    -- Opcional: Verificar se a sala está livre (se tiver a coluna LIVRE)
+    
      IF EXISTS (SELECT 1 FROM SALA WHERE ID = v_id_sala AND LIVRE = FALSE) THEN
         RAISE EXCEPTION 'Sala % está ocupada.', p_numero_sala;
      END IF;
 
-    -- Opcional: Marcar sala como ocupada
+    
      UPDATE SALA SET LIVRE = FALSE WHERE ID = v_id_sala;
 
-    -- 3. Tratamento da Doença
+    
     v_doenca_caps := UPPER(p_nome_doenca);
     IF NOT EXISTS (SELECT 1 FROM DOENCA WHERE DESCRICAO = v_doenca_caps AND PORTADOR = v_cpf_paciente) THEN
         INSERT INTO DOENCA (DESCRICAO, PORTADOR) VALUES (v_doenca_caps, v_cpf_paciente);
     END IF;
 
-    -- 4. Validar Médico
+   
     SELECT CPF INTO v_cpf_medico FROM PROFISSIONAL_SAUDE WHERE CRM_MED = p_crm_medico;
     IF v_cpf_medico IS NULL THEN
         RAISE EXCEPTION 'Médico com CRM % não encontrado.', p_crm_medico;
     END IF;
 
-    -- 5. Validar Procedimento
+    
     SELECT ID INTO v_id_tipo_proc FROM TIPO_PROC WHERE NOME = p_nome_procedimento;
     IF v_id_tipo_proc IS NULL THEN
         RAISE EXCEPTION 'Procedimento inválido.';
     END IF;
 
-    -- 6. Inserir Procedimento
-    -- Se você adicionou coluna ID_SALA em PROCEDIMENTO, adicione aqui no INSERT
+    
     INSERT INTO PROCEDIMENTO (ID_TIPO, COD_ENTR)
     VALUES (v_id_tipo_proc, p_cod_entrada)
     RETURNING CODIGO INTO v_novo_cod_proc;
 
-    -- 7. Vincular Médico
+    
     INSERT INTO PROF_PROC (COD_PROC, COD_PROF) VALUES (v_novo_cod_proc, v_cpf_medico);
 
 END;

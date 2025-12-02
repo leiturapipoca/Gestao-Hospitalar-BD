@@ -2,7 +2,7 @@ from tkinter import *
 from tkinter import ttk
 
 class TelaProcedimentos:
-    # Agora recebe duas listas: procedures (tipos) e medicos (CRMs)
+    #procedures (tipos) e medicos (CRMs)
     def __init__(self, master, procedures: tuple, medicos: tuple):
         self.janela = master
         self.janela.title("Registrar Procedimento")
@@ -12,24 +12,24 @@ class TelaProcedimentos:
 
         ttk.Label(self.frm, text="Novo Procedimento Médico", font=("Arial", 14, "bold")).grid(column=0, row=0, columnspan=2, pady=15)
 
-        # Campo: Nome da Doença
+        # CNome da Doença
         ttk.Label(self.frm, text="Nome da Doença:").grid(column=0, row=1, sticky=W, pady=5)
         self.campo_doenca = ttk.Entry(self.frm, width=30)
         self.campo_doenca.grid(column=1, row=1, sticky=EW)
 
-        # --- ALTERAÇÃO AQUI: COMBOBOX DE MÉDICOS ---
+        # COMBOBOX DE MÉDICOS
         ttk.Label(self.frm, text="Médico Responsável:").grid(column=0, row=2, sticky=W, pady=5)
         self.combo_medico = ttk.Combobox(self.frm, width=28, state='readonly')
         self.combo_medico['values'] = medicos # Recebe a lista "CRM - Nome"
         self.combo_medico.grid(column=1, row=2, sticky=EW)
 
-        # Campo: Tipo de Procedimento (Combobox)
+        #Tipo de Procedimento 
         ttk.Label(self.frm, text="Tipo de Procedimento:").grid(column=0, row=3, sticky=W, pady=5)
         self.combo_procedimento = ttk.Combobox(self.frm, width=28, state='readonly')
         self.combo_procedimento['values'] = procedures
         self.combo_procedimento.grid(column=1, row=3, sticky=EW)
 
-        # Campo: Número da Sala
+        # Número da Sala
         ttk.Label(self.frm, text="Número da Sala:").grid(column=0, row=4, sticky=W, pady=5)
         self.campo_sala = ttk.Entry(self.frm, width=30)
         self.campo_sala.grid(column=1, row=4, sticky=EW)
@@ -48,7 +48,7 @@ class TelaProcedimentos:
     def get_procedimento(self): return self.combo_procedimento.get()
     def get_sala(self): return self.campo_sala.get()
 
-    # Getter do médico (agora pega do combobox)
+    # Getter do médico 
     def get_cpf_medico(self): return self.combo_medico.get()
 
     def preencher_sala(self, valor):

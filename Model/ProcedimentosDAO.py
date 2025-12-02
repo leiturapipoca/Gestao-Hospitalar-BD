@@ -62,12 +62,12 @@ class ProcedimentosDAO:
 
     def registrar_procedimento_completo(self, cod_entrada, crm_medico, procedimento, nome_doenca, num_sala):
         """
-        Chama a procedure com o novo parâmetro de sala.
+        Chama a procedure .
         """
         try:
             cursor = self.connection.cursor()
             
-            # Adicionamos mais um %s::INT para a sala
+            
             sql = "CALL PR_REGISTRAR_PROCEDIMENTO_COMPLETO(%s::INT, %s::CHAR(9), %s::TEXT, %s::TEXT, %s::INT)"
             
             cursor.execute(sql, (cod_entrada, crm_medico, procedimento, nome_doenca, num_sala))

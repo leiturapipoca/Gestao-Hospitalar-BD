@@ -29,12 +29,13 @@ class ProcedimentosController:
         self.view.set_action_voltar(self.voltar_menu)
 
     def salvar_procedimento(self):
+        # pega as coisas das telas
         doenca = self.view.get_doenca()
-        # Pega o CRM selecionado "12345 - Dr..."
+        
         medico_str = self.view.get_cpf_medico() 
         tipo_proc = self.view.get_procedimento()
         
-        # Pega a sala (da tela ou da memória)
+        # Pega a sala 
         sala_final = self.numero_sala
         if hasattr(self.view, 'get_sala') and self.view.get_sala():
              try:
@@ -47,7 +48,7 @@ class ProcedimentosController:
             return
 
         try:
-            # Extrai só o CRM da string do combobox
+            #Extrai só o CRM da string do combobox
             crm_puro = medico_str.split(' - ')[0].strip()
         except:
             messagebox.showerror("Erro", "Médico inválido.")

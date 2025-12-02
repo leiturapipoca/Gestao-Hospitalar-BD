@@ -39,10 +39,10 @@ class PerfilFuncionarioController:
             messagebox.showwarning("Aviso", "Nome e Senha são obrigatórios.")
             return
 
-        # 1. Atualiza Texto
+        # Atualiza Texto
         sucesso_txt, msg_txt = self.dao.update_funcionario(matricula, nome, senha)
         
-        # 2. Atualiza Foto (se tiver selecionado alguma)
+        # Atualiza Foto 
         sucesso_foto = True
         if self.caminho_foto:
             sucesso_foto, msg_foto = self.dao.salvar_foto(matricula, self.caminho_foto)
