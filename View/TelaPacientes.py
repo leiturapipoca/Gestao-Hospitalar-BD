@@ -48,10 +48,10 @@ class TelaPacientes:
         self.btn_cadastrar.grid(row=7, column=0, pady=15, sticky=EW)
 
         self.btn_remover = ttk.Button(self.frm, text="Remover (Buscar pelo CPF)")
-        self.btn_remover.grid(row=8, column=1, pady=15, sticky=EW)
+        self.btn_remover.grid(row=7, column=1, pady=15, sticky=EW)
 
         # --- LINHA DIVISÓRIA ---
-        ttk.Separator(self.frm, orient=HORIZONTAL).grid(row=9, column=0, columnspan=2, sticky=EW, pady=10)
+        ttk.Separator(self.frm, orient=HORIZONTAL).grid(row=8, column=0, columnspan=2, sticky=EW, pady=10)
         
         # --- ÁREA DE HISTÓRICO ---
         ttk.Label(self.frm, text="Consultas e Entradas", font=("Arial", 12)).grid(row=10, column=0, columnspan=2)

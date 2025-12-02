@@ -10,7 +10,7 @@ class PacientesController:
         self.view = TelaPacientes(root)
         
         # 2. Cria o DAO (que você vai implementar)
-        self.dao = PacienteDAO()
+        self.dao: PacienteDAO = PacienteDAO()
 
         # 3. Liga os botões da View às funções deste Controller
         self.view.configurar_botoes(
@@ -55,7 +55,12 @@ class PacientesController:
                                      f"Tem certeza que deseja apagar o paciente CPF {cpf}?\n\nIsso pode acionar registros de auditoria.")
         
         if resposta:
-            self.dao.remover(cpf)
+            try:
+                self.dao.remover(cpf)
+                messagebox.showerror("deu certo", "deu certo")
+            except:
+                messagebox.showerror("deu errado", "deu errado")
+            
                
 
     def consultar_historico(self):
