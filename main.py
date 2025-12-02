@@ -11,7 +11,7 @@ from SQL import databaseUtils
 
 test_hosp_model = False
 test_funcao_model = True
-specific_view_test = 'paciente'
+specific_view_test = 'login'
 
 if __name__ == "__main__":
     if test_hosp_model: HospitalDAO.run_hosp_model_tests()
