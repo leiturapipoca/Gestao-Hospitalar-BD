@@ -28,30 +28,28 @@ class ProcedimentosController:
     def salvar_procedimento(self):
         # Coleta os dados da tela
         doenca = self.view.get_doenca()
-        crm_medico = self.view.get_cpf_medico() # O label diz CPF, mas o SQL pede CRM
+        crm_medico = self.view.get_cpf_medico()
         tipo_proc = self.view.get_procedimento()
-        
-        # Validação Simples
-        if not doenca or not crm_medico or not tipo_proc:
-            messagebox.showwarning("Aviso", "Preencha Doença, CRM do Médico e Tipo de Procedimento.")
-            return
+        sala = self.view.get_sala() # Pega o número da sala
 
-        # Chama o DAO que executa a PROCEDURE COMPLEXA no banco
-        # Essa procedure insere Procedimento, Doença (se não existir) e Vínculo com Médico
+        # Validação Simples
+        if not doenca or not crm_medico or not tipo_proc or not sala:
+            messagebox.showwarning("Aviso", "Preencha todos os campos, incluindo a sala.")
+            return
+        
+        # Validação se sala é número
+        if not sala.isdigit():
+             messagebox.showwarning("Aviso", "O número da sala deve ser numérico.")
+             return
+
+        # Chama o DAO com o novo parâmetro
         sucesso, mensagem = self.dao.registrar_procedimento_completo(
             self.id_entrada, 
             crm_medico, 
             tipo_proc, 
-            doenca
+            doenca,
+            int(sala) # Passa como inteiro
         )
-
-        if sucesso:
-            messagebox.showinfo("Sucesso", "Procedimento registrado! Paciente admitido com sucesso.")
-            # Fim do fluxo: Volta para o menu principal
-            self.voltar_menu()
-        else:
-            # Mostra o erro específico do banco (ex: "Médico não trabalha neste hospital")
-            messagebox.showerror("Erro no Agendamento", mensagem)
 
     def voltar_menu(self):
         from Controller.InternosController import InternosController
