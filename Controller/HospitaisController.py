@@ -6,6 +6,7 @@ from View.TelaHospHosp import TelaHospHosp
 from View.TelaLiberarSala import TelaLiberarSala
 from Controller.InternosController import InternosController
 import logging
+from Model.HospitalDAO import hosps_and_gerentes
 
 class HospitaisController:
     def __init__(self, root: Tk, dados_usuario):
@@ -32,7 +33,8 @@ class HospitaisController:
     def selecionar_hosps(self):
         logging.info("selecionar_hosps")
         self.view.frm.destroy()
-        self.view = TelaHospHosp(self.root, [("batata", "triangulo"), ("tçaJd", "afadf")])
+        hospitais = hosps_and_gerentes()
+        self.view = TelaHospHosp(self.root, hospitais)
         self.config_tela_hosp_hosp(self.view)
         
     def selecionar_salas(self):

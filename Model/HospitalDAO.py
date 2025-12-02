@@ -14,6 +14,17 @@ def validate_cnes(cnes: str) -> None:
     except: ValueError(f"cnes deve ser exclusivamente numérico. cnes informado, {cnes}, não é.")
 
 
+def hosps_and_gerentes():
+    connection = databaseUtils.connect_to_database()
+    logging.info("hosps_and_gerentes")
+    cursor = connection.cursor()
+    cursor.execute(f"""
+                       SELECT hospital.nome, administrador.nome, hospital.cnes
+                       FROM HOSPITAL JOIN ADMINISTRADOR ON HOSPITAL.ADM = ADMINISTRADOR.ID;
+                   """)
+    return cursor.fetchall()
+
+
 def num_of_docs_in_hosp(cnes: str, connection: Any) -> int:
     """conta o número de medicos vinculados a um dado hospital"""
 
@@ -169,6 +180,7 @@ def get_salas_livres_by_cnes(cnes: str, connection: Any) -> tuple:
         print(f"Erro ao buscar salas livres: {e}")
         
     return tuple(lista_salas)
+
 def run_hosp_model_tests():
     """roda testes verificando o correto funcionamento das queries presentes no HospitalDAO"""
     connection = databaseUtils.connect_to_database() 

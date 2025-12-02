@@ -7,9 +7,9 @@ class TelaHospHosp:
         self.frm.grid()
         columns = ("hospital", "gerentes")
         self.tree: ttk.Treeview = ttk.Treeview(self.frm, columns=columns, show="headings", height=6)
-        self.tree.heading("hospital", text="Código")
-        self.tree.heading("gerentes", text="Data")
-        self.tree.column("hospital", width=100)
+        self.tree.heading("hospital", text="hospital")
+        self.tree.heading("gerentes", text="gerente")
+        self.tree.column("hospital", width=120)
         self.tree.column("gerentes", width=100)
         self.tree.grid(row=0, column=0, columnspan=2, sticky="nsew")
 
