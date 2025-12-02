@@ -4,6 +4,7 @@ from Controller.LoginController import LoginController
 from Controller.InternosController import InternosController
 from Controller.ExternosController import ExternosController
 from Controller.GerenciarFuncsController import GerenciarFuncsController
+from Controller.PacientesController import PacientesController
 from Model import HospitalDAO
 from Model import FuncaoDAO
 from SQL import databaseUtils
@@ -22,6 +23,7 @@ if __name__ == "__main__":
     elif specific_view_test == 'acesso_interno': app = InternosController(root, {'nome': 'batata'})
     elif specific_view_test == 'acesso_externo': app = ExternosController(root)
     elif specific_view_test == 'gerenciar_funcs': app = GerenciarFuncsController(root)
+    elif specific_view_test == 'paciente': app = PacientesController(root, [])
     
 
     root.mainloop()

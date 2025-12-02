@@ -37,7 +37,7 @@ class InternosController:
 
     def abrir_pacientes(self):
         self.view.frm.destroy()
-        PacientesController(self.view.janela,self.dados_usuario_completo)
+        PacientesController(self.view.janela, self.dados_usuario_completo)
 
     def abrir_profissionais(self):
         self.view.frm.destroy()

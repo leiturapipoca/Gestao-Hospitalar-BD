@@ -220,6 +220,13 @@ class PacienteDAO:
                        """)
         self.connection.commit()
 
+
+    def remover(self, cpf: str):
+        cursor = self.connection.cursor()
+        cursor.execute(f"DELETE FROM PACIENTE WHERE CPF = '{cpf}'")
+        self.connection.commit()
+        
+
     # ============ fechar conexão ============
     def fechar_conexao(self):
         try:
