@@ -32,27 +32,32 @@ class TelaPacientes:
         ttk.Label(self.frm, text="Sexo (M/F):").grid(row=4, column=0, sticky=W)
         self.ent_sexo = ttk.Entry(self.frm, width=30)
         self.ent_sexo.grid(row=4, column=1, sticky=EW, pady=2)
-        
+
         # Senha (para o paciente logar depois)
         ttk.Label(self.frm, text="Senha Provisória:").grid(row=5, column=0, sticky=W)
         self.ent_senha = ttk.Entry(self.frm, show="*", width=30)
         self.ent_senha.grid(row=5, column=1, sticky=EW, pady=2)
 
+         #Sangue
+        ttk.Label(self.frm, text="Tipo Sanguíneo").grid(row=6, column=0, sticky=W)
+        self.ent_sangue = ttk.Entry(self.frm, width=30)
+        self.ent_sangue.grid(row=6, column=1, sticky=EW, pady=2)
+
         # --- BOTÕES DE AÇÃO ---
         self.btn_cadastrar = ttk.Button(self.frm, text="Cadastrar Novo Paciente")
-        self.btn_cadastrar.grid(row=6, column=0, pady=15, sticky=EW)
+        self.btn_cadastrar.grid(row=7, column=0, pady=15, sticky=EW)
 
         self.btn_remover = ttk.Button(self.frm, text="Remover (Buscar pelo CPF)")
-        self.btn_remover.grid(row=6, column=1, pady=15, sticky=EW)
+        self.btn_remover.grid(row=8, column=1, pady=15, sticky=EW)
 
         # --- LINHA DIVISÓRIA ---
-        ttk.Separator(self.frm, orient=HORIZONTAL).grid(row=7, column=0, columnspan=2, sticky=EW, pady=10)
+        ttk.Separator(self.frm, orient=HORIZONTAL).grid(row=9, column=0, columnspan=2, sticky=EW, pady=10)
         
         # --- ÁREA DE HISTÓRICO ---
-        ttk.Label(self.frm, text="Consultas e Entradas", font=("Arial", 12)).grid(row=8, column=0, columnspan=2)
+        ttk.Label(self.frm, text="Consultas e Entradas", font=("Arial", 12)).grid(row=10, column=0, columnspan=2)
         
         self.btn_buscar_hist = ttk.Button(self.frm, text="Buscar Histórico (Pelo CPF)")
-        self.btn_buscar_hist.grid(row=9, column=0, columnspan=2, sticky=EW, pady=5)
+        self.btn_buscar_hist.grid(row=11, column=0, columnspan=2, sticky=EW, pady=5)
 
         # Tabela (Treeview) para mostrar resultados
         columns = ('id', 'data', 'hospital')
@@ -80,6 +85,7 @@ class TelaPacientes:
     def get_data(self): return self.ent_data.get()
     def get_sexo(self): return self.ent_sexo.get()
     def get_senha(self): return self.ent_senha.get()
+    def get_sangue(self): return self.ent_sangue.get()
 
     # --- LISTENER CONFIG (Para o Controller ligar os botões) ---
     def configurar_botoes(self, cmd_cadastrar, cmd_remover, cmd_historico, cmd_voltar):

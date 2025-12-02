@@ -210,6 +210,15 @@ class PacienteDAO:
         except Exception as e:
             print(f"[PacienteDAO.get_procedimentos_detalhados] Erro: {e}")
             return []
+    def cadastrar(self, nome: str,data_nasc: str, sexo: str, cpf: str,tipo_sang: str, senha: str ):
+        data_nasc = data_nasc.replace("/","-")
+        cursor = self.connection.cursor()
+        
+        cursor.execute(f"""INSERT INTO PACIENTE (CPF, NOME, SEXO, DT_NASC, TIPO_SANG, SENHA) VALUES
+                       ('{cpf}','{nome}','{sexo}','{data_nasc}','{tipo_sang}','{senha}');
+                       
+                       """)
+        self.connection.commit()
 
     # ============ fechar conexão ============
     def fechar_conexao(self):

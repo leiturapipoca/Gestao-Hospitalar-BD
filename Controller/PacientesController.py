@@ -19,7 +19,7 @@ class PacientesController:
             self.consultar_historico,
             self.voltar
         )
-    senhar = "Paciente"
+    
     
     def cadastrar(self):
         # Pega todos os dados da tela
@@ -27,7 +27,8 @@ class PacientesController:
         nome = self.view.get_nome()
         data = self.view.get_data()
         sexo = self.view.get_sexo()
-        senha = PacientesController.senhar
+        tipo_sang = self.view.get_sangue()
+        senha = self.view.get_senha()
 
         # Validação básica
         if not cpf or not nome:
@@ -35,11 +36,12 @@ class PacientesController:
             return
 
         # Chama o DAO para inserir no banco
-        if self.dao.cadastrar(cpf, nome, data, sexo, senha):
+        try: 
+            self.dao.cadastrar(nome,data,sexo,cpf,tipo_sang,senha)
             messagebox.showinfo("Sucesso", f"Paciente {nome} cadastrado com sucesso!")
             # Limpa os campos após cadastrar (opcional)
             # self.view.ent_nome.delete(0, 'end')
-        else:
+        except:
             messagebox.showerror("Erro", "Falha ao cadastrar. Verifique se o CPF já existe.")
 
     def remover(self):
