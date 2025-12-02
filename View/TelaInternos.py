@@ -31,16 +31,18 @@ class TelaInternos:
 
         self.btn_perfil = ttk.Button(self.frm, text="Gerenciar meu perfil")
         self.btn_perfil.grid(column=0, row=6, pady=10, sticky=EW)
+
+        self.btn_hospital = ttk.Button(self.frm, text="Hospital")
+        self.btn_hospital.grid(column=0, row=7, pady=10)
         
-
       
-        ttk.Button(self.frm, text="Sair", command=self.janela.destroy).grid(column=0, row=7, pady=20)
+        ttk.Button(self.frm, text="Sair", command=self.janela.destroy).grid(column=0, row=8, pady=20)
 
 
-    def configurar_navegacao(self, comando_func, comando_pac, comando_prof, comando_ent, comando_perfil):
-       
+    def configurar_navegacao(self, comando_func, comando_pac, comando_prof, comando_ent, comando_perfil, comando_hospital):       
         self.btn_funcionarios.config(command=comando_func)
         self.btn_pacientes.config(command=comando_pac)
         self.btn_profissionais.config(command=comando_prof)
         self.btn_entradas.config(command=comando_ent)
         self.btn_perfil.config(command=comando_perfil)
+        self.btn_hospital.config(command=comando_hospital)

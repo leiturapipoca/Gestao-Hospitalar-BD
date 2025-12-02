@@ -28,7 +28,8 @@ class InternosController:
             self.abrir_pacientes,
             self.abrir_profissionais,
             self.abrir_entradas,
-            self.abrir_perfil
+            self.abrir_perfil,
+            self.abrir_hospitais
         )
 
     def abrir_funcionarios(self):
@@ -49,9 +50,13 @@ class InternosController:
         EntradasController(self.view.janela, self.dados_usuario_completo)
     
     def abrir_hospitais(self):
+        from Controller.HospitaisController import HospitaisController
         self.view.frm.destroy()
-        # HospitaisController(self.view.janela)
+        HospitaisController(self.view.janela, self.dados_usuario_completo)
+        
+
     def abrir_perfil(self):
         self.view.frm.destroy()
         # Chama o novo controller passando o dicionário completo
         PerfilFuncionarioController(self.view.janela, self.dados_usuario_completo)
+
