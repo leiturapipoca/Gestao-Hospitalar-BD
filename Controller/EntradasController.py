@@ -2,7 +2,6 @@ from tkinter import messagebox, END
 from View.TelaEntradas import TelaEntradas
 from Model.EntradaDAO import EntradaDAO
 import Model.HospitalDAO as HospitalDAO 
-import logging
 from Controller.ProcedimentosController import ProcedimentosController
 
 class EntradasController:
@@ -11,13 +10,9 @@ class EntradasController:
         self.usuario = usuario 
         self.cnes_vinculado = None 
         
-        # 1. BUSCA AS SALAS ANTES DE CRIAR A TELA
         salas_disponiveis = self.preparar_dados_hospital()
-
-        # 2. PASSA A LISTA DE SALAS PARA A TELA
         self.view = TelaEntradas(root, salas_disponiveis)
         
-        # 3. PREENCHE O NOME DO HOSPITAL
         if self.cnes_vinculado:
             nome_hosp = HospitalDAO.get_name_by_cnes(self.cnes_vinculado, self.dao.connection)
             texto = nome_hosp if nome_hosp else self.cnes_vinculado
@@ -29,46 +24,46 @@ class EntradasController:
     def preparar_dados_hospital(self):
         if not isinstance(self.usuario, dict): return ()
         matricula = self.usuario.get('matricula')
+        if not matricula: return ()
         
         cnes = HospitalDAO.get_cnes_by_matricula(matricula, self.dao.connection)
         
         if cnes:
             self.cnes_vinculado = cnes
-            # Busca salas livres
             return HospitalDAO.get_salas_livres_by_cnes(cnes, self.dao.connection)
-        else:
-            messagebox.showwarning("Aviso", "Funcionário sem vínculo hospitalar.")
-            return ()
+        return ()
 
     def salvar_e_avancar(self):
-        logging.info("De fato entrou em salva_e_avancar")
         cpf = self.view.get_cpf()
         cnes_salvar = self.cnes_vinculado
         desc = self.view.get_description()
-        sala_str = self.view.get_sala() # "Sala 101"
+        sala_str = self.view.get_sala()
 
         if not cpf or not cnes_salvar or not sala_str:
-            messagebox.showwarning("Aviso", "Preencha CPF e Sala!")
+            messagebox.showwarning("Aviso", "Preencha todos os campos!")
             return
         
         try:
-            # Extrai número da sala: "Sala 101" -> 101
-            numero_sala = int(sala_str.replace("Sala ", ""))
+            numero_sala = int(sala_str.replace("Sala ", "").strip())
         except:
             messagebox.showerror("Erro", "Sala inválida.")
             return
 
-        
+        id_entrada = self.dao.registrar_entrada(cpf, cnes_salvar, desc)
 
-        try:
-            logging.info("Entrou no try")
-            id_entrada = self.dao.registrar_entrada(cpf, cnes_salvar, desc)
-            logging.info(f"{id_entrada} eh o id de entrada")
+        if id_entrada:
             self.view.frm.destroy()
-            # Passa o numero_sala para o próximo controller
-            ProcedimentosController(self.view.janela, self.usuario, id_entrada, numero_sala)
-        except:
-            messagebox.showerror("Erro", "Falha ao registrar.")
+            
+            # --- AQUI ESTÁ A MUDANÇA: Passamos o cnes_salvar também ---
+            ProcedimentosController(
+                self.view.janela, 
+                self.usuario, 
+                id_entrada, 
+                numero_sala, 
+                cnes_salvar # Novo parâmetro!
+            )
+        else:
+            messagebox.showerror("Erro", "Falha ao registrar entrada.")
 
     def voltar(self):
         from Controller.InternosController import InternosController

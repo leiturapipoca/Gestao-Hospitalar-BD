@@ -25,28 +25,39 @@ class ProcedimentosDAO:
             
         return tuple(lista) # Retorna uma tupla para o Tkinter usar
 
-    def get_medicos_disponiveis(self):
+    def get_medicos_disponiveis(self, cnes_filtro=None):
         """
-        Busca CRMs e Nomes dos médicos. Útil se você quiser validar ou mostrar na tela.
+        Busca CRMs e Nomes dos médicos.
+        Se receber 'cnes_filtro', traz apenas os médicos daquele hospital.
         """
         lista_medicos = []
         try:
             cursor = self.connection.cursor()
+            
             sql = """
                 SELECT M.CRM, P.NOME 
                 FROM MEDICO M
                 JOIN PROFISSIONAL_SAUDE P ON M.CRM = P.CRM_MED
             """
-            cursor.execute(sql)
+            
+            # Se tiver filtro, fazemos o JOIN com a tabela de vínculo
+            if cnes_filtro:
+                sql += """
+                    JOIN PROF_SAUDE_HOSP PSH ON P.CPF = PSH.CPF_PROF
+                    WHERE PSH.CNES_HOSP = %s
+                """
+                sql += " ORDER BY P.NOME"
+                cursor.execute(sql, (cnes_filtro,))
+            else:
+                sql += " ORDER BY P.NOME"
+                cursor.execute(sql)
             
             for row in cursor.fetchall():
-                # Formata como string "CRM - Nome"
                 lista_medicos.append(f"{row[0]} - {row[1]}")
-                
+            
             cursor.close()
         except Exception as e:
             print(f"Erro ao buscar médicos: {e}")
-            
         return tuple(lista_medicos)
 
     def registrar_procedimento_completo(self, cod_entrada, crm_medico, procedimento, nome_doenca, num_sala):

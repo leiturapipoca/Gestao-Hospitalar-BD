@@ -3,54 +3,63 @@ from View.TelaProcedimentos import TelaProcedimentos
 from Model.ProcedimentosDAO import ProcedimentosDAO
 
 class ProcedimentosController:
-    # O __init__ tem que aceitar o 'numero_sala' opcional
-    def __init__(self, root, usuario, id_entrada, numero_sala=None):
+    # --- ADICIONADO 'cnes_hospital=None' no final ---
+    def __init__(self, root, usuario, id_entrada, numero_sala=None, cnes_hospital=None):
         self.usuario = usuario
         self.id_entrada = id_entrada 
         self.numero_sala = numero_sala
+        self.cnes_hospital = cnes_hospital # Guarda o hospital
         
         self.dao = ProcedimentosDAO()
         
-        # Carrega lista do banco
+        # Busca tipos
         lista_tipos = self.dao.get_tipos_procedimento()
         
+        # --- FILTRA OS MÉDICOS PELO HOSPITAL ---
+        # Passamos o CNES que veio da tela anterior
+        lista_medicos = self.dao.get_medicos_disponiveis(self.cnes_hospital)
+        
         # Cria a View
-        self.view = TelaProcedimentos(root, lista_tipos)
+        self.view = TelaProcedimentos(root, lista_tipos, lista_medicos)
         
-        # Se veio uma sala da tela anterior, preenche
-        if self.numero_sala:
-            # Verifica se a view tem o método antes de chamar
-            if hasattr(self.view, 'preencher_sala'):
-                self.view.preencher_sala(self.numero_sala)
-        
+        if self.numero_sala and hasattr(self.view, 'preencher_sala'):
+            self.view.preencher_sala(self.numero_sala)
+
         self.view.set_action_salvar(self.salvar_procedimento)
         self.view.set_action_voltar(self.voltar_menu)
 
     def salvar_procedimento(self):
         doenca = self.view.get_doenca()
-        crm_medico = self.view.get_cpf_medico() 
+        # Pega o CRM selecionado "12345 - Dr..."
+        medico_str = self.view.get_cpf_medico() 
         tipo_proc = self.view.get_procedimento()
         
-        # Pega a sala da tela (o usuário pode ter mudado)
-        sala_final = None
-        if hasattr(self.view, 'get_sala'):
-            sala_str = self.view.get_sala()
-            if sala_str and sala_str.isdigit():
-                sala_final = int(sala_str)
+        # Pega a sala (da tela ou da memória)
+        sala_final = self.numero_sala
+        if hasattr(self.view, 'get_sala') and self.view.get_sala():
+             try:
+                 s = self.view.get_sala()
+                 if s.isdigit(): sala_final = int(s)
+             except: pass
 
-        if not doenca or not crm_medico or not tipo_proc:
-            messagebox.showwarning("Aviso", "Preencha Doença, CRM e Tipo.")
+        if not doenca or not medico_str or not tipo_proc:
+            messagebox.showwarning("Aviso", "Preencha todos os campos.")
             return
 
-        # Chama o DAO (Passando a Sala junto, se sua procedure pedir)
-        # Se sua procedure SQL não pede sala, remova o ultimo argumento
+        try:
+            # Extrai só o CRM da string do combobox
+            crm_puro = medico_str.split(' - ')[0].strip()
+        except:
+            messagebox.showerror("Erro", "Médico inválido.")
+            return
+
+        # Chama DAO
         sucesso, mensagem = self.dao.registrar_procedimento_completo(
             self.id_entrada, 
-            crm_medico, 
+            crm_puro, 
             tipo_proc, 
             doenca,
-            # Se sua procedure pede sala, descomente abaixo:
-            sala_final 
+            int(sala_final) if sala_final else 0
         )
 
         if sucesso:
