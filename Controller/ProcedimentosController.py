@@ -3,56 +3,63 @@ from View.TelaProcedimentos import TelaProcedimentos
 from Model.ProcedimentosDAO import ProcedimentosDAO
 
 class ProcedimentosController:
-    def __init__(self, root, usuario, id_entrada):
-        """
-        Recebe:
-        - usuario: Dicionário do funcionário logado (para voltar ao menu depois)
-        - id_entrada: O ID da entrada recém-criada (Foreign Key para o procedimento)
-        """
+    # O __init__ tem que aceitar o 'numero_sala' opcional
+    def __init__(self, root, usuario, id_entrada, numero_sala=None):
         self.usuario = usuario
         self.id_entrada = id_entrada 
+        self.numero_sala = numero_sala
         
         self.dao = ProcedimentosDAO()
         
-        # 1. Busca os tipos reais no banco para preencher o Combobox
-        # (Nada de dados 'hardcoded' como 'batata')
+        # Carrega lista do banco
         lista_tipos = self.dao.get_tipos_procedimento()
         
-        # 2. Cria a View passando a lista carregada
+        # Cria a View
         self.view = TelaProcedimentos(root, lista_tipos)
         
-        # 3. Configura os botões
+        # Se veio uma sala da tela anterior, preenche
+        if self.numero_sala:
+            # Verifica se a view tem o método antes de chamar
+            if hasattr(self.view, 'preencher_sala'):
+                self.view.preencher_sala(self.numero_sala)
+        
         self.view.set_action_salvar(self.salvar_procedimento)
         self.view.set_action_voltar(self.voltar_menu)
 
     def salvar_procedimento(self):
-        # Coleta os dados da tela
         doenca = self.view.get_doenca()
-        crm_medico = self.view.get_cpf_medico()
+        crm_medico = self.view.get_cpf_medico() 
         tipo_proc = self.view.get_procedimento()
-        sala = self.view.get_sala() # Pega o número da sala
-
-        # Validação Simples
-        if not doenca or not crm_medico or not tipo_proc or not sala:
-            messagebox.showwarning("Aviso", "Preencha todos os campos, incluindo a sala.")
-            return
         
-        # Validação se sala é número
-        if not sala.isdigit():
-             messagebox.showwarning("Aviso", "O número da sala deve ser numérico.")
-             return
+        # Pega a sala da tela (o usuário pode ter mudado)
+        sala_final = None
+        if hasattr(self.view, 'get_sala'):
+            sala_str = self.view.get_sala()
+            if sala_str and sala_str.isdigit():
+                sala_final = int(sala_str)
 
-        # Chama o DAO com o novo parâmetro
+        if not doenca or not crm_medico or not tipo_proc:
+            messagebox.showwarning("Aviso", "Preencha Doença, CRM e Tipo.")
+            return
+
+        # Chama o DAO (Passando a Sala junto, se sua procedure pedir)
+        # Se sua procedure SQL não pede sala, remova o ultimo argumento
         sucesso, mensagem = self.dao.registrar_procedimento_completo(
             self.id_entrada, 
             crm_medico, 
             tipo_proc, 
             doenca,
-            int(sala) # Passa como inteiro
+            # Se sua procedure pede sala, descomente abaixo:
+            sala_final 
         )
+
+        if sucesso:
+            messagebox.showinfo("Sucesso", "Procedimento registrado!")
+            self.voltar_menu()
+        else:
+            messagebox.showerror("Erro", mensagem)
 
     def voltar_menu(self):
         from Controller.InternosController import InternosController
         self.view.frm.destroy()
-        # Volta para o menu principal devolvendo os dados do funcionário
         InternosController(self.view.janela, self.usuario)

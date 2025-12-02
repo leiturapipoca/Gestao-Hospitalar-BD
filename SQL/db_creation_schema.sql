@@ -216,12 +216,12 @@ BEGIN
     END IF;
 
     -- Opcional: Verificar se a sala está livre (se tiver a coluna LIVRE)
-    -- IF EXISTS (SELECT 1 FROM SALA WHERE ID = v_id_sala AND LIVRE = FALSE) THEN
-    --    RAISE EXCEPTION 'Sala % está ocupada.', p_numero_sala;
-    -- END IF;
+     IF EXISTS (SELECT 1 FROM SALA WHERE ID = v_id_sala AND LIVRE = FALSE) THEN
+        RAISE EXCEPTION 'Sala % está ocupada.', p_numero_sala;
+     END IF;
 
     -- Opcional: Marcar sala como ocupada
-    -- UPDATE SALA SET LIVRE = FALSE WHERE ID = v_id_sala;
+     UPDATE SALA SET LIVRE = FALSE WHERE ID = v_id_sala;
 
     -- 3. Tratamento da Doença
     v_doenca_caps := UPPER(p_nome_doenca);
@@ -268,8 +268,11 @@ VALUES
 
 INSERT INTO DOENCA (DESCRICAO, PORTADOR)
 VALUES
-    ('Gripe', '00000000001'),
-    ('Asma', '00000000002');
+    ('GRIPE', '00000000001'),
+    ('HEMATOMAS', '00000000001'),
+    ('POLIDACTILIA', '00000000001'),
+    ('CICATRIZES', '00000000001'),
+    ('ASMA', '00000000002');
 
 INSERT INTO FUNCAO (NOME)
 VALUES ('Recepcionista'), ('Secretário'), ('Diretor'), ('Superintendente'), ('Auditor');
@@ -293,7 +296,7 @@ INSERT INTO SALA (NUMERO, HOSPITAL, LIVRE)
 VALUES
     (101, '0000001', TRUE),
     (102, '0000001',TRUE),
-    (103,'0000001',TRUE),
+    (103,'0000001',FALSE),
     (104,'0000001',TRUE),
     (105,'0000001',TRUE),
 
@@ -336,13 +339,13 @@ VALUES
 -- ============================
 
 INSERT INTO MEDICO (CRM)
-VALUES ('CRM000001');
+VALUES ('CRM000001'),('CRM000002'),('CRM000003'),('CRM000004'),('CRM000005'), ('CRM000006') ;
 
 INSERT INTO ENFERMEIRO (CODIGO)
 VALUES (DEFAULT);  -- gera automaticamente (1)
 
 INSERT INTO ESPECIALIDADE (NOME)
-VALUES ('Cardiologia'), ('Pediatria');
+VALUES ('Cardiologia'), ('Pediatria'), ('Odontologia'), ('Radioterpia'), ('Oftalmologia');
 
 -- ============================
 -- 5) PROFISSIONAL DE SAÚDE
@@ -350,13 +353,23 @@ VALUES ('Cardiologia'), ('Pediatria');
 
 INSERT INTO PROFISSIONAL_SAUDE (CPF, NOME, TIPO, CRM_MED, COD_ENF)
 VALUES
-    ('00000000011', 'Dr. Fulano', 'M', 'CRM000001', NULL),
-    ('00000000012', 'Enf. Beltrano', 'E', NULL, 1);
+    ('00000000011', 'Dra. Maristela', 'M', 'CRM000001', NULL),
+    ('00000000012', 'Dr. LeBron', 'M', 'CRM000002', NULL),
+    ('00000000013', 'Dr. Shaquille', 'M', 'CRM000003', NULL),
+    ('00000000014', 'Dr. Durant', 'M', 'CRM000004', NULL),
+    ('00000000015', 'Dr. Bonifácio', 'M', 'CRM000005', NULL),
+    ('00000000016', 'Dr. Karl-Anthony', 'M', 'CRM000006', NULL),
+     ('00000000031', 'Enf. Beltrano', 'E', NULL, 1);
 
 INSERT INTO PROF_SAUDE_HOSP (CPF_PROF, CNES_HOSP)
 VALUES
     ('00000000011', '0000001'),
-    ('00000000012', '0000001');
+    ('00000000012', '0000002'),
+    ('00000000013', '0000003'),
+    ('00000000014', '0000004'),
+    ('00000000015', '0000005'),
+    ('00000000016', '0000001');
+
 
 -- ============================
 -- 6) TIPOS DE PROCEDIMENTOS + ENTRADA
@@ -417,5 +430,11 @@ VALUES
 INSERT INTO MEDICO_ESPEC (CRM_MED, ID_SPEC)
 VALUES
     ('CRM000001', 1),
-    ('CRM000001', 2);
+    ('CRM000001', 2),
+    ('CRM000002',3),
+    ('CRM000003',4),
+    ('CRM000004',5),
+    ('CRM000002',2);
 
+
+SELECT * FROM SALA;

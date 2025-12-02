@@ -27,10 +27,9 @@ class TelaProcedimentos:
         self.combo_procedimento['values'] = procedures
         self.combo_procedimento.grid(column=1, row=3, sticky=EW)
 
-        # Campo: Número da Sala
-       # ttk.Label(self.frm, text="Número da Sala:").grid(column=0, row=4, sticky=W, pady=5)
-        #self.campo_sala = ttk.Entry(self.frm, width=30)
-        #self.campo_sala.grid(column=1, row=4, sticky=EW)
+        ttk.Label(self.frm, text="Número da Sala:").grid(column=0, row=4, sticky=W, pady=5)
+        self.campo_sala = ttk.Entry(self.frm, width=30)
+        self.campo_sala.grid(column=1, row=4, sticky=EW)
 
         # Botões
         self.btn_salvar = ttk.Button(self.frm, text="CONFIRMAR PROCEDIMENTO")
@@ -56,6 +55,11 @@ class TelaProcedimentos:
 
     def get_sala(self):
         return self.campo_sala.get()
+
+    def preencher_sala(self, valor):
+        self.campo_sala.delete(0, END)
+        self.campo_sala.insert(0, valor)
+        self.campo_sala.config(state='readonly')
 
     def carregar_procedimentos(self, lista_procedimentos):
         """Atualiza a lista de procedimentos disponíveis no combobox"""

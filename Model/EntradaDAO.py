@@ -1,6 +1,6 @@
 import psycopg2
 from exemplos_python.test_queries import connect_to_database
-
+import logging
 class EntradaDAO:
     def __init__(self):
         self.connection = connect_to_database()
@@ -33,7 +33,7 @@ class EntradaDAO:
             
             self.connection.commit() 
             cursor.close()
-            
+            logging.info("chegou a gerar o id")
             return id_gerado # Retorna o número (Ex: 5)
             
         except Exception as e:

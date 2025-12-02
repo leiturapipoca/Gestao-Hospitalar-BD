@@ -2,8 +2,8 @@ from tkinter import *
 from tkinter import ttk
 
 class TelaEntradas:
-    # Agora recebe a tupla de salas no construtor
-    def __init__(self, master, salas_livres: tuple):
+    # CORREÇÃO: Adicionei '=()' para tornar o argumento opcional e evitar o Crash
+    def __init__(self, master, salas_livres=()):
         self.janela = master
         self.janela.title("Registrar Nova Entrada")
         
@@ -12,28 +12,30 @@ class TelaEntradas:
 
         ttk.Label(self.frm, text="Nova Admissão Hospitalar", font=("Arial", 14, "bold")).grid(column=0, row=0, columnspan=2, pady=15)
 
-        # CPF
+        # --- Campo 1: CPF ---
         ttk.Label(self.frm, text="CPF do Paciente:").grid(column=0, row=1, sticky=W, pady=5)
         self.campo_cpf = ttk.Entry(self.frm, width=30)
         self.campo_cpf.grid(column=1, row=1, sticky=EW)
 
-        # Hospital (Auto)
+        # --- Campo 2: Hospital ---
         ttk.Label(self.frm, text="Hospital Vinculado:").grid(column=0, row=2, sticky=W, pady=5)
         self.campo_cnes = ttk.Entry(self.frm, width=30)
         self.campo_cnes.grid(column=1, row=2, sticky=EW)
 
-        # Descrição
+        # --- Campo 3: Descrição ---
         ttk.Label(self.frm, text="Descrição:").grid(column=0, row=3, sticky=W, pady=5)
         self.description = ttk.Entry(self.frm, width=30)
         self.description.grid(column=1, row=3, sticky=EW)
 
-        # --- NOVO CAMPO: SALA ---
+        # --- Campo 4: Sala (Combobox) ---
         ttk.Label(self.frm, text="Alocar Sala:").grid(column=0, row=4, sticky=W, pady=5)
         self.combo_sala = ttk.Combobox(self.frm, width=28, state='readonly')
-        self.combo_sala['values'] = salas_livres # Preenche com as salas livres do hospital
+        
+        # Preenche com o que veio do Controller (ou vazio se não veio nada)
+        self.combo_sala['values'] = salas_livres 
         self.combo_sala.grid(column=1, row=4, sticky=EW)
 
-        # Botões
+        # --- Botões ---
         self.btn_salvar = ttk.Button(self.frm, text="CONFIRMAR ENTRADA")
         self.btn_salvar.grid(column=0, row=5, columnspan=2, pady=20, sticky=EW)
         
@@ -46,8 +48,6 @@ class TelaEntradas:
     def get_cpf(self): return self.campo_cpf.get()
     def get_cnes(self): return self.campo_cnes.get()
     def get_description(self): return self.description.get()
-    
-    # Novo Getter
     def get_sala(self): return self.combo_sala.get()
     
     def preencher_cnes(self, valor_cnes):
